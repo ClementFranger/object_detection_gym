@@ -33,3 +33,10 @@ class TestLabelIMG(unittest.TestCase):
         test = DofusLabelIMG.instance.test
 
         assert os.path.isdir(test)
+
+    def test_data_to_csv(self):
+        DofusLabelIMG.instance.data_to_csv()
+        train, test = DofusLabelIMG.instance.train, DofusLabelIMG.instance.test
+
+        assert os.path.isfile(os.path.join(test, '{name}.csv'.format(name=test.name)))
+        assert os.path.isfile(os.path.join(test, '{name}.csv'.format(name=test.name)))
