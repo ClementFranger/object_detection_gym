@@ -12,57 +12,138 @@ logger = logging.getLogger(__name__)
 
 class LabelIMG:
     instance = None
-    data = None
 
-    class Decorators:
-        @classmethod
-        def csv(cls, **kwargs):
-            def decorator(f):
-                @wraps(f)
-                def wrapper(self, *args, **kwargs):
-                    csv, cols = f(self, *args, **kwargs)
-                    d = kwargs.get('d')
-                    path = os.path.join(d, '{name}.csv'.format(name=d.name))
-                    logger.info('Outputing data to {csv}'.format(csv=path))
-                    return pandas.DataFrame(csv, columns=cols).to_csv(path)
-                return wrapper
-            return decorator
+    def __init__(self, **kwargs):
+        Data.factory(**kwargs)
 
     @classmethod
-    def factory(cls):
+    def factory(cls, **kwargs):
         if cls.instance is None:
-            cls.instance = cls()
+            cls.instance = cls(**kwargs)
         assert isinstance(cls.instance, cls)
         return cls.instance
 
     @property
-    def labels(self):
-        return Path(os.path.join(self.data, 'labels'))
+    def data(self):
+        return Data.instance
+
+
+class Source:
+    instance = None
+
+    def __init__(self, **kwargs):
+        self.path = Path(kwargs.get('path'))
+
+    @classmethod
+    def factory(cls, **kwargs):
+        if cls.instance is None:
+            cls.instance = cls(**kwargs)
+        assert isinstance(cls.instance, cls)
+        return cls.instance
 
     @property
-    def images(self):
-        return Path(os.path.join(self.data, 'images'))
+    def xml(self):
+        xml = list(self.path.glob('*.xml'))
+        logger.info('Found {count} xml files in {name}'.format(count=len(xml), name=self.path.name))
+        return xml
 
     @property
-    def train(self):
-        return Path(os.path.join(self.data, 'train'))
-
-    @property
-    def test(self):
-        return Path(os.path.join(self.data, 'test'))
-
-    @Decorators.csv()
-    def csv(self, **kwargs):
-        """ takes a directory and convert all xml files to csv """
-        d, csv = kwargs.get('d'), []
-        for xml in list(Path(d).glob('*.xml')):
+    def csv(self):
+        csv = []
+        logger.info('Converting {name} data to csv'.format(name=self.path.name))
+        for xml in self.xml:
             csv.extend(XML(path=xml).csv)
         return csv, XML.LabelIMGSchema.values()
 
-    def data_to_csv(self):
-        for d in [self.train, self.test]:
-            logger.info('Converting {d} data to csv'.format(d=d))
-            self.csv(d=d)
+    @property
+    def pbtxt(self):
+        pbtxt = []
+        logger.info('Converting {name} data to pbtxt'.format(name=self.path.name))
+        for xml in self.xml:
+            pbtxt.extend(XML(path=xml).pbtxt)
+        return sorted(list(set(pbtxt)))
+
+
+class Data(Source):
+
+    class Decorators:
+        @classmethod
+        def csv(cls, f):
+            @wraps(f)
+            def wrapper(self, *args, **kwargs):
+                name, csv, cols = f(self, *args, **kwargs)
+                path = os.path.join(self.path, '{name}.csv'.format(name=name))
+                logger.info('Outputing csv to {csv}'.format(csv=path))
+                return pandas.DataFrame(csv, columns=cols).to_csv(path)
+            return wrapper
+
+        @classmethod
+        def pbtxt(cls, f):
+            @wraps(f)
+            def wrapper(self, *args, **kwargs):
+                name, pbtxt = f(self, *args, **kwargs)
+                path = os.path.join(self.path, '{name}.pbtxt'.format(name=name))
+                logger.info('Outputing pbtxt to {pbtxt}'.format(pbtxt=path))
+                with open(path, "w") as output:
+                    output.write(pbtxt)
+            return wrapper
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Images.factory(path=Path(os.path.join(self.path, kwargs.get('images', Images.name))))
+        Labels.factory(path=Path(os.path.join(self.path, kwargs.get('labels', Labels.name))))
+        Train.factory(path=Path(os.path.join(self.path, kwargs.get('train', Train.name))))
+        Test.factory(path=Path(os.path.join(self.path, kwargs.get('test', Test.name))))
+
+    @property
+    def images(self):
+        return Images.instance
+
+    @property
+    def labels(self):
+        return Labels.instance
+
+    @property
+    def train(self):
+        return Train.instance
+
+    @property
+    def test(self):
+        return Test.instance
+
+    @Decorators.csv
+    def _csv(self, *args):
+        return args
+
+    def csv(self):
+        self._csv(Train.instance.name, *Train.instance.csv)
+        self._csv(Test.instance.name, *Test.instance.csv)
+
+    @Decorators.pbtxt
+    def pbtxt(self):
+        train, test, pbtxt = Train.instance.pbtxt, Test.instance.pbtxt, ""
+        for i, c in enumerate(sorted(list(set(train + test)))):
+            pbtxt = (pbtxt + "item {{\n    id: {0}\n    name: '{1}'\n}}\n\n".format(i + 1, c))
+        return Labels.instance.name, pbtxt
+
+
+class Images(Source):
+    name = 'images'
+
+    def split(self):
+        return
+
+
+class Labels(Source):
+    name = 'labels'
+
+
+class Train(Source):
+    name = 'train'
+
+
+class Test(Source):
+    name = 'test'
 
 
 class XML:
@@ -98,7 +179,19 @@ class XML:
                         int(o.find(self.XMLSchema.BNDBOX).find(self.LabelIMGSchema.YMAX).text)))
         return csv
 
+    def _pbtxt(self):
+        pbtxt = []
+        root = ElementTree.parse(self.path).getroot()
+        for o in root.findall(self.XMLSchema.OBJECT):
+            pbtxt.append(o.find(self.LabelIMGSchema.NAME).text)
+        return pbtxt
+
     @property
     def csv(self):
-        logger.info('Converting {path} to csv'.format(path=self.path))
+        logger.info('Converting {name} to csv'.format(name=self.path.name))
         return self._csv()
+
+    @property
+    def pbtxt(self):
+        logger.info('Converting {name} to pbtxt'.format(name=self.path.name))
+        return self._pbtxt()

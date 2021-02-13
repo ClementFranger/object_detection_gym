@@ -1,42 +1,27 @@
 import os
 import unittest
 
-from workout.dofus.labelimg import DofusLabelIMG
+from workout.labelimg import Train, Test, Data, Images, Labels, LabelIMG
 
 
 class TestLabelIMG(unittest.TestCase):
+    data = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\data'
 
     def setUp(self):
-        self.dofus = DofusLabelIMG.factory()
+        self.dofus = LabelIMG.factory(path=self.data)
 
     def test_data(self):
-        data = DofusLabelIMG.instance.data
+        assert os.path.isdir(Data.instance.path)
+        assert os.path.isdir(Images.instance.path)
+        assert os.path.isdir(Labels.instance.path)
+        assert os.path.isdir(Train.instance.path)
+        assert os.path.isdir(Test.instance.path)
 
-        assert os.path.isdir(data)
+    def test_data_csv(self):
+        Data.instance.csv()
+        assert os.path.isfile(os.path.join(Data.instance.path, '{name}.csv'.format(name=Train.instance.path.name)))
+        assert os.path.isfile(os.path.join(Data.instance.path, '{name}.csv'.format(name=Test.instance.path.name)))
 
-    def test_images(self):
-        images = DofusLabelIMG.instance.images
-
-        assert os.path.isdir(images)
-
-    def test_labels(self):
-        labels = DofusLabelIMG.instance.labels
-
-        assert os.path.isdir(labels)
-
-    def test_train(self):
-        train = DofusLabelIMG.instance.train
-
-        assert os.path.isdir(train)
-
-    def test_test(self):
-        test = DofusLabelIMG.instance.test
-
-        assert os.path.isdir(test)
-
-    def test_data_to_csv(self):
-        DofusLabelIMG.instance.data_to_csv()
-        train, test = DofusLabelIMG.instance.train, DofusLabelIMG.instance.test
-
-        assert os.path.isfile(os.path.join(test, '{name}.csv'.format(name=test.name)))
-        assert os.path.isfile(os.path.join(test, '{name}.csv'.format(name=test.name)))
+    def test_data_pbtxt(self):
+        Data.instance.pbtxt()
+        assert os.path.isfile(os.path.join(Data.instance.path, '{name}.pbtxt'.format(name=Data.instance.path.name)))
