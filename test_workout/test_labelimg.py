@@ -1,15 +1,16 @@
 import os
 import unittest
+import tensorflow as tf
 from collections import namedtuple
 
-from workout.labelimg import Train, Test, Data, Images, Labels, LabelIMG, XML, Root, Tree, Size, BNDBOX
+from workout.labelimg import Train, Test, Data, Images, Labels, LabelIMG, XML, Root, Tree, Size, BNDBOX, TFRecord
 
 
 class TestLabelIMG(unittest.TestCase):
-    data = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\data'
+    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\data'
 
     def setUp(self):
-        self.dofus = LabelIMG.factory(path=self.data)
+        self.labelimg = LabelIMG.factory(path=self.path)
 
     def test_data(self):
         assert os.path.isdir(Data.instance.path)
@@ -18,41 +19,51 @@ class TestLabelIMG(unittest.TestCase):
         assert os.path.isdir(Train.instance.path)
         assert os.path.isdir(Test.instance.path)
 
-    def test_data_csv(self):
-        Data.instance.csv()
-        assert os.path.isfile(os.path.join(Data.instance.path, '{name}.csv'.format(name=Train.instance.path.name)))
-        assert os.path.isfile(os.path.join(Data.instance.path, '{name}.csv'.format(name=Test.instance.path.name)))
 
-    def test_data_pbtxt(self):
-        Data.instance.pbtxt()
-        assert os.path.isfile(os.path.join(Data.instance.path, '{name}.pbtxt'.format(name=Data.instance.path.name)))
+class TestTrain(unittest.TestCase):
+    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\data'
 
-    def test_(self):
-        import tensorflow as tf
-        import pandas as pd
+    def setUp(self):
+        self.data = Data.factory(path=self.path)
 
-        writer = tf.io.TFRecordWriter(os.path.join(Data.instance.path, 'train.record'))
-        # path = os.path.join(image_dir)
-        examples = pd.read_csv(os.path.join(Data.instance.path, 'train.csv'))
+    def test_train_xml(self):
+        xml = Train.instance.xml
+        assert isinstance(xml, list)
+        assert len(xml) == 4
+        assert all(isinstance(x, XML) for x in xml)
 
-        def split(df, group):
-            data = namedtuple('data', ['filename', 'object'])
-            gb = df.groupby(group)
-            print('groups keys are %s' % gb.groups.keys())
-            print('groups are %s' % gb.groups)
-            return [data(filename, gb.get_group(x)) for filename, x in zip(gb.groups.keys(), gb.groups)]
+    def test_train_tfrecord(self):
+        tfrecord = Train.instance.tfrecord
+        assert isinstance(tfrecord, list)
+        assert len(tfrecord) == 4
+        assert all(isinstance(x, TFRecord) for x in tfrecord)
 
-        print(examples)
-        grouped = split(examples, 'filename')
-        for g in grouped:
-            print('------------------------')
-            print('printing data')
-            print(g.filename)
-            print('printing groupby')
-            print(g.object)
-            print('------------------------')
-            # tf_example = create_tf_example(group, path)
-            # writer.write(tf_example.SerializeToString())
+    def test_train_write_tfrecord(self):
+        """ do not run multiple times as it will append to current record """
+        Train.instance.write_tfrecord()
+
+
+class TestTest(unittest.TestCase):
+    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\data'
+
+    def setUp(self):
+        self.data = Data.factory(path=self.path)
+
+    def test_test_xml(self):
+        xml = Test.instance.xml
+        assert isinstance(xml, list)
+        assert len(xml) == 1
+        assert all(isinstance(x, XML) for x in xml)
+
+    def test_test_tfrecord(self):
+        tfrecord = Test.instance.tfrecord
+        assert isinstance(tfrecord, list)
+        assert len(tfrecord) == 1
+        assert all(isinstance(x, TFRecord) for x in tfrecord)
+
+    def test_test_write_tfrecord(self):
+        """ do not run multiple times as it will append to current record """
+        Test.instance.write_tfrecord()
 
 
 class TestXML(unittest.TestCase):
@@ -91,3 +102,27 @@ class TestXML(unittest.TestCase):
         assert bndbox.ymin == 13
         assert bndbox.xmax == 203
         assert bndbox.ymax == 155
+
+    def test_csv(self):
+        csv, cols = self.xml.csv
+        assert len(csv) == 1
+        assert len(next(iter(csv))) == len(cols)
+
+    def test_python(self):
+        python = self.xml.python
+        assert isinstance(python, dict)
+        assert python.get('annotation').get('folder') == 'dofus'
+        assert isinstance(python.get('annotation').get('object'), list)
+
+
+class TestTFRecord(unittest.TestCase):
+    xml = r'C:\Users\Minifranger\Documents\python_scripts\workout\test_workout\mocks\test_xml.xml'
+
+    def setUp(self):
+        self.tfrecord = TFRecord(xml=XML(path=self.xml))
+
+    def test_tfrecord(self):
+        assert isinstance(self.tfrecord, TFRecord)
+        assert isinstance(self.tfrecord.tfrecord, dict)
+        assert isinstance(self.tfrecord.tfrecord.get('filename'), tf.train.Feature)
+        assert isinstance(self.tfrecord.tfrecord.get('name'), tf.train.Feature)

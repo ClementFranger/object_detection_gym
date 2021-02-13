@@ -1,4 +1,7 @@
+import tensorflow as tf
 
-# TODO : have function that takes input from csv or xml and returns tfrecords
+
 class TFRecord:
-    pass
+    def __init__(self, **kwargs):
+        self.path = kwargs.get('path')
+        self.writer = tf.io.TFRecordWriter(self.path)

@@ -1,9 +1,11 @@
 import os
 import logging
 import pandas
+import tensorflow as tf
 from functools import wraps
 from pathlib import Path
 from xml.etree import ElementTree
+from object_detection.utils import dataset_util
 
 from workout.utils import Schema
 
@@ -14,6 +16,7 @@ class LabelIMG:
     instance = None
 
     def __init__(self, **kwargs):
+        logger.info('Creating data factory from {path}'.format(path=kwargs.get('path')))
         Data.factory(**kwargs)
 
     @classmethod
@@ -30,6 +33,7 @@ class LabelIMG:
 
 class Source:
     instance = None
+    name = None
 
     def __init__(self, **kwargs):
         self.path = Path(kwargs.get('path'))
@@ -41,60 +45,72 @@ class Source:
         assert isinstance(cls.instance, cls)
         return cls.instance
 
-    @property
-    def files(self):
-        files = list(self.path.glob('*.xml'))
-        logger.info('Found {count} xml files in {name}'.format(count=len(files), name=self.path.name))
-        return files
+    # @property
+    # def files(self):
+    #     files = list(self.path.glob('*.xml'))
+    #     logger.info('Found {count} xml files in {name}'.format(count=len(files), name=self.path.name))
+    #     return files
 
     @property
     def xml(self):
         xml = []
         logger.info('Retrieving {name} data as xml'.format(name=self.path.name))
-        for x in self.files:
-            xml.extend(LabelIMGXML(path=x).xml)
+        for x in list(self.path.glob('*.xml')):
+            xml.append(XML(path=x))
         return xml
 
     @property
-    def csv(self):
-        csv = []
-        logger.info('Retrieving {name} data as csv'.format(name=self.path.name))
-        for xml in self.files:
-            csv.extend(LabelIMGXML(path=xml).csv)
-        return csv, LabelIMGXML.LabelIMGSchema.values()
+    def tfrecord(self):
+        tfrecord = []
+        logger.info('Retrieving {name} data as tfrecord'.format(name=self.path.name))
+        for x in list(self.path.glob('*.xml')):
+            tfrecord.append(XML(path=x).tfrecord)
+        return tfrecord
 
-    @property
-    def pbtxt(self):
-        pbtxt = []
-        logger.info('Retrieving {name} data as pbtxt'.format(name=self.path.name))
-        for xml in self.files:
-            pbtxt.extend(LabelIMGXML(path=xml).pbtxt)
-        return sorted(list(set(pbtxt)))
+    def write_tfrecord(self):
+        for r in self.tfrecord:
+            r.write()
+    # @property
+    # def csv(self):
+    #     csv = []
+    #     logger.info('Retrieving {name} data as csv'.format(name=self.path.name))
+    #     for xml in self.files:
+    #         csv.extend(XML(path=xml).csv)
+    #     return csv, XML.LabelIMGSchema.values()
+
+    # @property
+    # def pbtxt(self):
+    #     pbtxt = []
+    #     logger.info('Retrieving {name} data as pbtxt'.format(name=self.path.name))
+    #     for xml in self.files:
+    #         pbtxt.extend(XML(path=xml).pbtxt)
+    #     return sorted(list(set(pbtxt)))
 
 
 class Data(Source):
-
-    class Decorators:
-        @classmethod
-        def csv(cls, f):
-            @wraps(f)
-            def wrapper(self, *args, **kwargs):
-                name, csv, cols = f(self, *args, **kwargs)
-                path = os.path.join(self.path, '{name}.csv'.format(name=name))
-                logger.info('Outputing csv to {csv}'.format(csv=path))
-                return pandas.DataFrame(csv, columns=cols).to_csv(path)
-            return wrapper
-
-        @classmethod
-        def pbtxt(cls, f):
-            @wraps(f)
-            def wrapper(self, *args, **kwargs):
-                name, pbtxt = f(self, *args, **kwargs)
-                path = os.path.join(self.path, '{name}.pbtxt'.format(name=name))
-                logger.info('Outputing pbtxt to {pbtxt}'.format(pbtxt=path))
-                with open(path, "w") as output:
-                    output.write(pbtxt)
-            return wrapper
+    # class Decorators:
+    #     @classmethod
+    #     def csv(cls, f):
+    #         @wraps(f)
+    #         def wrapper(self, *args, **kwargs):
+    #             name, csv, cols = f(self, *args, **kwargs)
+    #             path = os.path.join(self.path, '{name}.csv'.format(name=name))
+    #             logger.info('Outputing csv to {csv}'.format(csv=path))
+    #             return pandas.DataFrame(csv, columns=cols).to_csv(path)
+    #
+    #         return wrapper
+    #
+    #     @classmethod
+    #     def pbtxt(cls, f):
+    #         @wraps(f)
+    #         def wrapper(self, *args, **kwargs):
+    #             name, pbtxt = f(self, *args, **kwargs)
+    #             path = os.path.join(self.path, '{name}.pbtxt'.format(name=name))
+    #             logger.info('Outputing pbtxt to {pbtxt}'.format(pbtxt=path))
+    #             with open(path, "w") as output:
+    #                 output.write(pbtxt)
+    #
+    #         return wrapper
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -119,20 +135,20 @@ class Data(Source):
     def test(self):
         return Test.instance
 
-    @Decorators.csv
-    def _csv(self, *args):
-        return args
+    # @Decorators.csv
+    # def _csv(self, *args):
+    #     return args
+    #
+    # def csv(self):
+    #     self._csv(Train.instance.name, *Train.instance.csv)
+    #     self._csv(Test.instance.name, *Test.instance.csv)
 
-    def csv(self):
-        self._csv(Train.instance.name, *Train.instance.csv)
-        self._csv(Test.instance.name, *Test.instance.csv)
-
-    @Decorators.pbtxt
-    def pbtxt(self):
-        train, test, pbtxt = Train.instance.pbtxt, Test.instance.pbtxt, ""
-        for i, c in enumerate(sorted(list(set(train + test)))):
-            pbtxt = (pbtxt + "item {{\n    id: {0}\n    name: '{1}'\n}}\n\n".format(i + 1, c))
-        return Labels.instance.name, pbtxt
+    # @Decorators.pbtxt
+    # def pbtxt(self):
+    #     train, test, pbtxt = Train.instance.pbtxt, Test.instance.pbtxt, ""
+    #     for i, c in enumerate(sorted(list(set(train + test)))):
+    #         pbtxt = (pbtxt + "item {{\n    id: {0}\n    name: '{1}'\n}}\n\n".format(i + 1, c))
+    #     return Labels.instance.name, pbtxt
 
 
 class Images(Source):
@@ -154,55 +170,51 @@ class Test(Source):
     name = 'test'
 
 
-class LabelIMGXML:
-    class XMLSchema(Schema):
-        OBJECT = 'object'
-        SIZE = 'size'
-        BNDBOX = 'bndbox'
-
-    class LabelIMGSchema(Schema):
-        FILENAME = 'filename'
-        WIDTH = 'width'
-        HEIGHT = 'height'
-        NAME = 'name'
-        XMIN = 'xmin'
-        YMIN = 'ymin'
-        XMAX = 'xmax'
-        YMAX = 'ymax'
+class TFRecord:
 
     def __init__(self, **kwargs):
-        self.path = kwargs.get('path')
+        self.xml = kwargs.get('xml')
+        assert isinstance(self.xml, XML)
+        self.path = os.path.join(Data.instance.path, '{name}.record'.format(name=self.xml.path.parent.name))
+        self.writer = tf.io.TFRecordWriter(self.path)
 
-    def _csv(self):
-        csv = []
-        root = ElementTree.parse(self.path).getroot()
-        for o in root.findall(self.XMLSchema.OBJECT):
-            csv.append((root.find(self.LabelIMGSchema.FILENAME).text,
-                        int(root.find(self.XMLSchema.SIZE).find(self.LabelIMGSchema.WIDTH).text),
-                        int(root.find(self.XMLSchema.SIZE).find(self.LabelIMGSchema.HEIGHT).text),
-                        o.find(self.LabelIMGSchema.NAME).text,
-                        int(o.find(self.XMLSchema.BNDBOX).find(self.LabelIMGSchema.XMIN).text),
-                        int(o.find(self.XMLSchema.BNDBOX).find(self.LabelIMGSchema.YMIN).text),
-                        int(o.find(self.XMLSchema.BNDBOX).find(self.LabelIMGSchema.XMAX).text),
-                        int(o.find(self.XMLSchema.BNDBOX).find(self.LabelIMGSchema.YMAX).text)))
-        return csv
-
-    def _pbtxt(self):
-        pbtxt = []
-        root = ElementTree.parse(self.path).getroot()
-        for o in root.findall(self.XMLSchema.OBJECT):
-            pbtxt.append(o.find(self.LabelIMGSchema.NAME).text)
-        return pbtxt
+    # def _writer(self):
+    #     path = os.path.join(Data.instance.path, '{name}.record'.format(name=self.xml.path.parent.name))
+    #     return tf.io.TFRecordWriter(path)
 
     @property
-    def csv(self):
-        logger.info('Converting {name} to csv'.format(name=self.path.name))
-        return self._csv()
+    def filename(self):
+        return {Root.RootSchema.FILENAME: dataset_util.bytes_feature(self.xml.tree.root.filename.encode('utf8'))}
 
     @property
-    def pbtxt(self):
-        logger.info('Converting {name} to pbtxt'.format(name=self.path.name))
-        return self._pbtxt()
+    def size(self):
+        return {Size.SizeSchema.WIDTH: dataset_util.int64_feature(self.xml.tree.root.size.width),
+                Size.SizeSchema.HEIGHT: dataset_util.int64_feature(self.xml.tree.root.size.height)}
+
+    @property
+    def object(self):
+        name, label, xmin, ymin, xmax, ymax = [], [], [], [], [], []
+        for o in self.xml.tree.root.objects:
+            name.append(o.name.encode('utf8'))
+            label.append(1)
+            xmin.append(o.bndbox.xmin)
+            ymin.append(o.bndbox.ymin)
+            xmax.append(o.bndbox.xmax)
+            ymax.append(o.bndbox.ymax)
+        return {Object.ObjectSchema.NAME: dataset_util.bytes_list_feature(name),
+                "label": dataset_util.int64_list_feature(label),
+                BNDBOX.BNDBOXSchema.XMIN: dataset_util.int64_list_feature(xmin),
+                BNDBOX.BNDBOXSchema.YMIN: dataset_util.int64_list_feature(ymin),
+                BNDBOX.BNDBOXSchema.XMAX: dataset_util.int64_list_feature(xmax),
+                BNDBOX.BNDBOXSchema.YMAX: dataset_util.int64_list_feature(ymax)}
+
+    @property
+    def tfrecord(self):
+        return {**self.filename, **self.size, **self.object}
+
+    def write(self):
+        logger.info('Writing tfrecord to {path}'.format(path=self.path))
+        self.writer.write(tf.train.Example(features=tf.train.Features(feature=self.tfrecord)).SerializeToString())
 
 
 class CSV:
@@ -210,11 +222,28 @@ class CSV:
 
 
 class XML:
-
     def __init__(self, **kwargs):
-        self.path = kwargs.get('path')
+        self.path = Path(kwargs.get('path'))
         assert os.path.isfile(self.path)
+        logger.info('Creating XML object from {name}'.format(name=self.path.name))
         self.tree = Tree(tree=ElementTree.parse(self.path))
+
+    @property
+    def csv(self):
+        csv = []
+        for o in self.tree.root.objects:
+            csv.append((self.tree.root.filename, self.tree.root.size.width, self.tree.root.size.height,
+                        o.name, o.bndbox.xmin, o.bndbox.ymin, o.bndbox.xmax, o.bndbox.ymax))
+        return csv, [Root.RootSchema.FILENAME, *Size.SizeSchema.values(), Object.ObjectSchema.NAME,
+                     *BNDBOX.BNDBOXSchema.values()]
+
+    @property
+    def python(self):
+        return dataset_util.recursive_parse_xml_to_dict(self.tree.root.root)
+
+    @property
+    def tfrecord(self):
+        return TFRecord(xml=self)
 
 
 class Tree:
