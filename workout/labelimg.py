@@ -42,25 +42,33 @@ class Source:
         return cls.instance
 
     @property
+    def files(self):
+        files = list(self.path.glob('*.xml'))
+        logger.info('Found {count} xml files in {name}'.format(count=len(files), name=self.path.name))
+        return files
+
+    @property
     def xml(self):
-        xml = list(self.path.glob('*.xml'))
-        logger.info('Found {count} xml files in {name}'.format(count=len(xml), name=self.path.name))
+        xml = []
+        logger.info('Retrieving {name} data as xml'.format(name=self.path.name))
+        for x in self.files:
+            xml.extend(LabelIMGXML(path=x).xml)
         return xml
 
     @property
     def csv(self):
         csv = []
-        logger.info('Converting {name} data to csv'.format(name=self.path.name))
-        for xml in self.xml:
-            csv.extend(XML(path=xml).csv)
-        return csv, XML.LabelIMGSchema.values()
+        logger.info('Retrieving {name} data as csv'.format(name=self.path.name))
+        for xml in self.files:
+            csv.extend(LabelIMGXML(path=xml).csv)
+        return csv, LabelIMGXML.LabelIMGSchema.values()
 
     @property
     def pbtxt(self):
         pbtxt = []
-        logger.info('Converting {name} data to pbtxt'.format(name=self.path.name))
-        for xml in self.xml:
-            pbtxt.extend(XML(path=xml).pbtxt)
+        logger.info('Retrieving {name} data as pbtxt'.format(name=self.path.name))
+        for xml in self.files:
+            pbtxt.extend(LabelIMGXML(path=xml).pbtxt)
         return sorted(list(set(pbtxt)))
 
 
@@ -146,7 +154,7 @@ class Test(Source):
     name = 'test'
 
 
-class XML:
+class LabelIMGXML:
     class XMLSchema(Schema):
         OBJECT = 'object'
         SIZE = 'size'
@@ -195,3 +203,71 @@ class XML:
     def pbtxt(self):
         logger.info('Converting {name} to pbtxt'.format(name=self.path.name))
         return self._pbtxt()
+
+
+class CSV:
+    pass
+
+
+class XML:
+
+    def __init__(self, **kwargs):
+        self.path = kwargs.get('path')
+        assert os.path.isfile(self.path)
+        self.tree = Tree(tree=ElementTree.parse(self.path))
+
+
+class Tree:
+    def __init__(self, **kwargs):
+        self.tree = kwargs.get('tree')
+        self.root = Root(root=self.tree.getroot())
+
+
+class Root:
+    class RootSchema(Schema):
+        FILENAME = 'filename'
+        SIZE = 'size'
+        OBJECT = 'object'
+
+    def __init__(self, **kwargs):
+        self.root = kwargs.get('root')
+        self.filename = self.root.find(self.RootSchema.FILENAME).text
+        self.size = Size(size=self.root.find(self.RootSchema.SIZE))
+        self.objects = [Object(object=o) for o in self.root.findall(self.RootSchema.OBJECT)]
+
+
+class Size:
+    class SizeSchema(Schema):
+        WIDTH = 'width'
+        HEIGHT = 'height'
+
+    def __init__(self, **kwargs):
+        self.size = kwargs.get('size')
+        self.width = int(self.size.find(self.SizeSchema.WIDTH).text)
+        self.height = int(self.size.find(self.SizeSchema.HEIGHT).text)
+
+
+class Object:
+    class ObjectSchema(Schema):
+        NAME = 'name'
+        BNDBOX = 'bndbox'
+
+    def __init__(self, **kwargs):
+        self.object = kwargs.get('object')
+        self.name = self.object.find(self.ObjectSchema.NAME).text
+        self.bndbox = BNDBOX(bndbox=self.object.find(self.ObjectSchema.BNDBOX))
+
+
+class BNDBOX:
+    class BNDBOXSchema(Schema):
+        XMIN = 'xmin'
+        YMIN = 'ymin'
+        XMAX = 'xmax'
+        YMAX = 'ymax'
+
+    def __init__(self, **kwargs):
+        self.bndbox = kwargs.get('bndbox')
+        self.xmin = int(self.bndbox.find(self.BNDBOXSchema.XMIN).text)
+        self.ymin = int(self.bndbox.find(self.BNDBOXSchema.YMIN).text)
+        self.xmax = int(self.bndbox.find(self.BNDBOXSchema.XMAX).text)
+        self.ymax = int(self.bndbox.find(self.BNDBOXSchema.YMAX).text)

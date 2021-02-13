@@ -1,2 +1,6 @@
 tensorflow==2.4.1
-pandas==1.2.2
+tf-slim==1.1.0
+pandas
+scipy
+matplotlib
+pyyaml
