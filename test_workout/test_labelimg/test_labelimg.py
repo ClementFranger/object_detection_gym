@@ -18,6 +18,26 @@ class TestLabelIMG(unittest.TestCase):
         assert os.path.isdir(Train.instance.path)
         assert os.path.isdir(Test.instance.path)
 
+    def test_write(self):
+        LabelIMG.write()
+        assert os.path.isfile(TrainTFWriter.instance.path)
+        assert os.path.isfile(TestTFWriter.instance.path)
+
+
+        # import tensorflow as tf
+        # example = tf.train.Example()
+        # from tensorflow.python.lib.io.tf_record import tf_record_iterator
+        # print('TRAIN RECORDS ')
+        # for record in tf_record_iterator(str(TrainTFWriter.instance.path)):
+        #     example.ParseFromString(record)
+        #     f = example.features.feature
+        #     print(f)
+        # print('TEST RECORDS ')
+        # for record in tf_record_iterator(str(TestTFWriter.instance.path)):
+        #     example.ParseFromString(record)
+        #     f = example.features.feature
+        #     print(f)
+
 
 class TestTrain(unittest.TestCase):
     path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus'
@@ -38,23 +58,9 @@ class TestTrain(unittest.TestCase):
         assert all(isinstance(x, TFRecord) for x in tfrecord)
 
     def test_train_write(self):
-        # """ do not run multiple times as it will append to current record """
-        # TrainTFWriter.factory()
-        # Train.instance.write_tfrecord(writer=TrainTFWriter.instance.writer)
         Train.instance.write()
         assert os.path.isfile(TrainTFWriter.instance.path)
-
-        # import tensorflow as tf
-        # example = tf.train.Example()
-        # from tensorflow.python.lib.io.tf_record import tf_record_iterator
-        # for record in tf_record_iterator(r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\data\train.record'):
-        #     example.ParseFromString(record)
-        #     f = example.features.feature
-        #     print(f)
-            # v1 = f['int64 feature'].int64_list.value[0]
-            # v2 = f['float feature'].float_list.value[0]
-            # v3 = f['bytes feature'].bytes_list.value[0]
-            # print(v1, v2, v3)
+        assert os.path.getsize(TrainTFWriter.instance.path) > 0
 
 
 class TestTest(unittest.TestCase):
@@ -78,6 +84,4 @@ class TestTest(unittest.TestCase):
     def test_test_write(self):
         Test.instance.write()
         assert os.path.isfile(TestTFWriter.instance.path)
-
-
-
+        assert os.path.getsize(TestTFWriter.instance.path) > 0

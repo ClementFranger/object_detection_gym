@@ -30,6 +30,11 @@ class LabelIMG:
     def data(self):
         return Data.instance
 
+    @staticmethod
+    def write():
+        Train.instance.write()
+        Test.instance.write()
+
 
 class Source:
     instance = None
@@ -97,12 +102,12 @@ class Labels(Source):
 class Train(Source):
     name = 'train'
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        TrainTFWriter.factory(path=os.path.join(Data.instance.path, '{name}.record'.format(name=self.name)))
+    # def __init__(self, **kwargs):
+    #     super().__init__(**kwargs)
 
     @property
     def writer(self):
+        TrainTFWriter.factory(path=os.path.join(Data.instance.path, '{name}.record'.format(name=self.name)))
         return TrainTFWriter.instance
 
     def write(self):
@@ -113,12 +118,12 @@ class Train(Source):
 class Test(Source):
     name = 'test'
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        TestTFWriter.factory(path=os.path.join(Data.instance.path, '{name}.record'.format(name=self.name)))
+    # def __init__(self, **kwargs):
+    #     super().__init__(**kwargs)
 
     @property
     def writer(self):
+        TestTFWriter.factory(path=os.path.join(Data.instance.path, '{name}.record'.format(name=self.name)))
         return TestTFWriter.instance
 
     def write(self):

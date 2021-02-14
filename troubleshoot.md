@@ -5,3 +5,9 @@ for tensorflow : python 3.8.6
 buld protoc
 
 CUDA toolkit for gpu augmentation
+no need to build csv from xml and then csv to tfrecords -> go directly from xml files to tfrecords
+
+todo : what is diff between sample config from tensorflow dir and pipeline config of downloaded model
+TODO : tensorboard
+
+add tensorflow models, models/research, slim into PYTHONPATH env var
