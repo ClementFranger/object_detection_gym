@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from workout.labelimg.labelimg import Train, Test, Data, Images, Labels, LabelIMG, TrainTFWriter, TestTFWriter
+from workout.labelimg.labelimg import Train, Test, Data, Images, Labels, LabelIMG, TrainTFWriter, TestTFWriter, Image
 from workout.labelimg.tfrecord import TFRecord, XML
 
 
@@ -85,3 +85,22 @@ class TestTest(unittest.TestCase):
         Test.instance.write()
         assert os.path.isfile(TestTFWriter.instance.path)
         assert os.path.getsize(TestTFWriter.instance.path) > 0
+
+
+class TestImages(unittest.TestCase):
+    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus'
+
+    def setUp(self):
+        self.labelimg = LabelIMG.factory(path=self.path)
+
+    def test_images(self):
+        images = Images.instance.images
+        assert len(images) == 5
+        assert all(isinstance(i, Image) for i in images)
+
+    def test_format(self):
+        images = Images.instance.images
+        assert all(i.format.lower().endswith('.jpg') for i in images)
+
+    def test_all(self):
+        assert Images.instance.all

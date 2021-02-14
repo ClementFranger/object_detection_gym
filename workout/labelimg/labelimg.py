@@ -1,6 +1,7 @@
 import os
 import logging
 from pathlib import Path
+from tensorflow.python.platform.gfile import GFile
 
 from workout.labelimg.tfrecord import XML
 from workout.labelimg.tfwriter import TrainTFWriter, TestTFWriter
@@ -55,7 +56,7 @@ class Source:
         xml = []
         logger.info('Retrieving {name} data as xml'.format(name=self.path.name))
         for x in list(self.path.glob('*.xml')):
-            xml.append(XML(path=x))
+            xml.append(XML(path=x, image=Image()))
         return xml
 
     @property
@@ -63,7 +64,8 @@ class Source:
         tfrecord = []
         logger.info('Retrieving {name} data as tfrecord'.format(name=self.path.name))
         for x in list(self.path.glob('*.xml')):
-            tfrecord.append(XML(path=x).tfrecord)
+            tfrecord.append(XML(path=x, image=Image(
+                path=os.path.join(Images.instance.path, x.name.replace('xml', 'jpg')))).tfrecord)
         return tfrecord
 
 
@@ -90,6 +92,22 @@ class Data(Source):
 class Images(Source):
     name = 'images'
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        assert self.all
+
+    @property
+    def images(self):
+        images = []
+        logger.info('Retrieving {name} data as image'.format(name=self.path.name))
+        for i in list(self.path.glob('*.jpg')):
+            images.append(Image(path=i))
+        return images
+
+    @property
+    def all(self, **kwargs):
+        return all([i.format.lower().endswith(kwargs.get('format', 'jpg')) for i in self.images])
+
     def split(self):
         return
 
@@ -101,9 +119,6 @@ class Labels(Source):
 
 class Train(Source):
     name = 'train'
-
-    # def __init__(self, **kwargs):
-    #     super().__init__(**kwargs)
 
     @property
     def writer(self):
@@ -118,9 +133,6 @@ class Train(Source):
 class Test(Source):
     name = 'test'
 
-    # def __init__(self, **kwargs):
-    #     super().__init__(**kwargs)
-
     @property
     def writer(self):
         TestTFWriter.factory(path=os.path.join(Data.instance.path, '{name}.record'.format(name=self.name)))
@@ -129,3 +141,19 @@ class Test(Source):
     def write(self):
         for r in self.tfrecord:
             self.writer.write(tfrecord=r.tfrecord)
+
+
+class Image:
+    def __init__(self, **kwargs):
+        self.path = kwargs.get('path')
+
+    @property
+    def encoded(self):
+        with GFile(self.path, 'rb') as f:
+            encoded = f.read()
+        return encoded
+
+    @property
+    def format(self):
+        _, format = os.path.splitext(self.path)
+        return format

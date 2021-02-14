@@ -11,3 +11,5 @@ todo : what is diff between sample config from tensorflow dir and pipeline confi
 TODO : tensorboard
 
 add tensorflow models, models/research, slim into PYTHONPATH env var
+
+image/encoded and image/format as feature name or it won't work

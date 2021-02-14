@@ -1,8 +1,8 @@
 import os
-from xml.etree import ElementTree
-from workout.utils import Schema
 import logging
 from pathlib import Path
+from xml.etree import ElementTree
+from workout.utils import Schema
 from object_detection.utils import dataset_util
 
 
@@ -15,6 +15,7 @@ class XML:
         assert os.path.isfile(self.path)
         logger.info('Creating XML object from {name}'.format(name=self.path.name))
         self.tree = Tree(tree=ElementTree.parse(self.path))
+        self.image = kwargs.get('image')
 
     @property
     def csv(self):
@@ -122,5 +123,10 @@ class TFRecord:
                 BNDBOX.BNDBOXSchema.YMAX: dataset_util.int64_list_feature(ymax)}
 
     @property
+    def image(self):
+        return {'image/encoded': dataset_util.bytes_feature(self.xml.image.encoded),
+                'image/format': dataset_util.bytes_feature('jpg'.encode('utf8'))}
+
+    @property
     def tfrecord(self):
-        return {**self.filename, **self.size, **self.object}
+        return {**self.filename, **self.size, **self.object, **self.image}
