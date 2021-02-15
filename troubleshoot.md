@@ -4,7 +4,7 @@ for tensorflow : python 3.8.6
 
 buld protoc
 
-CUDA toolkit for gpu augmentation
+CUDA toolkit for gpu augmentation, cdnn download and CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2 as env var
 no need to build csv from xml and then csv to tfrecords -> go directly from xml files to tfrecords
 
 todo : what is diff between sample config from tensorflow dir and pipeline config of downloaded model

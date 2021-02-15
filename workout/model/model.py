@@ -1,38 +1,19 @@
-# # Some models to train on
-# MODELS_CONFIG = {
-#     'ssd_mobilenet_v3': {
-#         'model_name': 'ssd_mobilenet_v2_coco_2018_03_29',
-#     },
-#     'faster_rcnn_inception_v2': {
-#         'model_name': 'faster_rcnn_inception_v2_coco_2018_01_28',
-#     },
-# }
-#
-# # Select a model from `MODELS_CONFIG`.
-# # I chose ssd_mobilenet_v2 for this project, you could choose any
-# selected_model = 'ssd_mobilenet_v3'
+import os
+import logging
+from pathlib import Path
+
+from workout.labelimg.labelimg import Data
+from workout.labelimg.tfwriter import ConfigWriter
+
+logger = logging.getLogger(__name__)
 
 
 class Model:
-
-    def __init__(self, **kwargs):
-        Config.factory(path=kwargs.get('config'), **kwargs)
-
-    @property
-    def config(self):
-        return Config.instance
-
-
-class Config:
     instance = None
 
     def __init__(self, **kwargs):
-        self.path = kwargs.get('path')
-        self.num_class = 1
-        self.checkpoint = None
-        self.num_steps = None
-        self.fine_tune_checkpoint_type = 'detection'
-        self.batch_size = 4
+        logger.info('Creating model factory from {path}'.format(path=kwargs.get('path')))
+        PipelineConfig.factory(config=Path(os.path.join(kwargs.get('path'), kwargs.get('config', PipelineConfig.name))), **kwargs)
 
     @classmethod
     def factory(cls, **kwargs):
@@ -41,13 +22,93 @@ class Config:
         assert isinstance(cls.instance, cls)
         return cls.instance
 
-class SSD:
-    pass
-class TrainConfig:
-    pass
-class TestConfig:
-    pass
-class TrainInput:
-    pass
-class TestInput:
-    pass
+    @property
+    def config(self):
+        return PipelineConfig.instance
+
+
+class PipelineConfig:
+    instance = None
+    name = 'pipeline.config'
+
+    def __init__(self, **kwargs):
+        self.config = kwargs.get('config')
+        SSD.factory(**kwargs)
+        TrainConfig.factory(**kwargs)
+        TrainInput.factory(**kwargs)
+        TestInput.factory(**kwargs)
+        # self.data = kwargs.get('data')
+        # self.num_classes = kwargs.get('num_classes')
+        # self.train = TrainInput(**kwargs)
+        # self.test = TestInput(**kwargs)
+        # # self.checkpoint = None
+        # self.num_steps = None
+        # self.fine_tune_checkpoint_type = 'detection'
+        # self.batch_size = 4
+
+    @classmethod
+    def factory(cls, **kwargs):
+        if cls.instance is None:
+            cls.instance = cls(**kwargs)
+        assert isinstance(cls.instance, cls)
+        return cls.instance
+
+    @property
+    def writer(self):
+        ConfigWriter.factory(path=self.config)
+        return ConfigWriter.instance
+
+    def update(self):
+        read = self.writer.read()
+        edit = self.writer.edit(pipeline=read, num_classes=SSD.instance.num_classes,
+                                batch_size=TrainConfig.instance.batch_size, num_steps=TrainConfig.instance.num_steps,
+                                label_map_path=TrainInput.instance.labels or TestInput.instance.labels,
+                                train_input_path=TrainInput.instance.input, test_input_path=TestInput.instance.input,
+                                fine_tune_checkpoint=TrainConfig.instance.fine_tune_checkpoint)
+        write = self.writer.write(pipeline=edit)
+
+
+class Config:
+    instance = None
+
+    @classmethod
+    def factory(cls, **kwargs):
+        if cls.instance is None:
+            cls.instance = cls(**kwargs)
+        assert isinstance(cls.instance, cls)
+        return cls.instance
+
+
+class SSD(Config):
+    def __init__(self, **kwargs):
+        self.num_classes = kwargs.get('num_classes', 1)
+
+
+class TrainConfig(Config):
+    def __init__(self, **kwargs):
+        self.batch_size = kwargs.get('batch_size', 512)
+        self.num_steps = kwargs.get('num_steps', 20000)
+        self.fine_tune_checkpoint = kwargs.get('fine_tune_checkpoint')
+
+
+class Input(Config):
+    name = None
+
+    def __init__(self, **kwargs):
+        self.data = kwargs.get('data') or Data.instance
+
+    @property
+    def labels(self):
+        return os.path.join(self.data.path, 'labels.pbtxt')
+
+    @property
+    def input(self):
+        return os.path.join(self.data.path, '{name}.record'.format(name=self.name))
+
+
+class TrainInput(Input):
+    name = 'train'
+
+
+class TestInput(Input):
+    name = 'test'
