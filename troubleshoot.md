@@ -13,3 +13,15 @@ TODO : tensorboard
 add tensorflow models, models/research, slim into PYTHONPATH env var
 
 image/encoded and image/format as feature name or it won't work
+
+fine_tune_checkpoint file is download model ckpt-0 file.
+for file name ckpt-0.data-00000-of-00001 -> ckpt-0
+
+ROADMAP : 
+# split images to train and test datasets
+Images.split()
+# generates tfrecords
+LabelIMG.write()
+# choose model and modify pipeline.config
+
+

@@ -31,6 +31,8 @@ class Config:
         self.num_class = 1
         self.checkpoint = None
         self.num_steps = None
+        self.fine_tune_checkpoint_type = 'detection'
+        self.batch_size = 4
 
     @classmethod
     def factory(cls, **kwargs):
