@@ -25,3 +25,6 @@ LabelIMG.write()
 # choose model and modify pipeline.config
 
 
+RUn :C:\Users\Minifranger\Documents\python_scripts\workout\venv\Scripts\python.exe model_main_tf2.py --pipeline_config_path=C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\models\ssd_mobilenet_v2_320x320_coco17_tpu-8\pipeline.config --model_dir=C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\models\training --num_train_steps=10000 --sample_1_of_n_eval_examples=1
+
+TENSORBOARD : C:\Users\Minifranger\Documents\python_scripts\workout\venv\Scripts\python.exe -m tensorboard.main --logdir=logdir

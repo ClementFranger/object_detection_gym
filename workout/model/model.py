@@ -12,8 +12,11 @@ class Model:
     instance = None
 
     def __init__(self, **kwargs):
-        logger.info('Creating model factory from {path}'.format(path=kwargs.get('path')))
-        PipelineConfig.factory(config=Path(os.path.join(kwargs.get('path'), kwargs.get('config', PipelineConfig.name))), **kwargs)
+        self.path = kwargs.get('path')
+        logger.info('Creating model factory from {path}'.format(path=self.path))
+        PipelineConfig.factory(config=Path(os.path.join(kwargs.get('path'), kwargs.get('config', PipelineConfig.name))),
+                               **kwargs)
+        self.training = os.path.join(self.path, 'training')
 
     @classmethod
     def factory(cls, **kwargs):
@@ -26,8 +29,20 @@ class Model:
     def config(self):
         return PipelineConfig.instance
 
-    def run(self):
-        return
+    def run(self, **kwargs):
+        python = kwargs.get('python') or os.getenv('PYTHON')
+        main = kwargs.get('main') or os.getenv('MAIN')
+        cmd = '{python} {main} --pipeline_config_path={config} --model_dir={training}'.format(python=python, main=main,
+                                                                                              config=self.config.config,
+                                                                                              training=self.training)
+        print('Running command {cmd}'.format(cmd=cmd))
+        os.system(cmd)
+
+    def tensorboard(self, **kwargs):
+        python = kwargs.get('python') or os.getenv('PYTHON')
+        cmd = '{python} -m tensorboard.main --logdir={training}'.format(python=python, training=self.training)
+        print('Running command {cmd}'.format(cmd=cmd))
+        os.system(cmd)
 
 
 class PipelineConfig:

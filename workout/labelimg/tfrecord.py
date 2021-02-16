@@ -98,12 +98,13 @@ class TFRecord:
 
     @property
     def filename(self):
-        return {Root.RootSchema.FILENAME: dataset_util.bytes_feature(self.xml.tree.root.filename.encode('utf8'))}
+        return {'image/filename': dataset_util.bytes_feature(self.xml.tree.root.filename.encode('utf8')),
+                'image/source_id': dataset_util.bytes_feature(self.xml.tree.root.filename.encode('utf8'))}
 
     @property
     def size(self):
-        return {Size.SizeSchema.WIDTH: dataset_util.int64_feature(self.xml.tree.root.size.width),
-                Size.SizeSchema.HEIGHT: dataset_util.int64_feature(self.xml.tree.root.size.height)}
+        return {'image/width': dataset_util.int64_feature(self.xml.tree.root.size.width),
+                'image/height': dataset_util.int64_feature(self.xml.tree.root.size.height)}
 
     @property
     def object(self):
@@ -111,16 +112,16 @@ class TFRecord:
         for o in self.xml.tree.root.objects:
             name.append(o.name.encode('utf8'))
             label.append(1)
-            xmin.append(o.bndbox.xmin)
-            ymin.append(o.bndbox.ymin)
-            xmax.append(o.bndbox.xmax)
-            ymax.append(o.bndbox.ymax)
-        return {Object.ObjectSchema.NAME: dataset_util.bytes_list_feature(name),
-                "label": dataset_util.int64_list_feature(label),
-                BNDBOX.BNDBOXSchema.XMIN: dataset_util.int64_list_feature(xmin),
-                BNDBOX.BNDBOXSchema.YMIN: dataset_util.int64_list_feature(ymin),
-                BNDBOX.BNDBOXSchema.XMAX: dataset_util.int64_list_feature(xmax),
-                BNDBOX.BNDBOXSchema.YMAX: dataset_util.int64_list_feature(ymax)}
+            xmin.append(o.bndbox.xmin / self.xml.tree.root.size.width)
+            ymin.append(o.bndbox.ymin / self.xml.tree.root.size.width)
+            xmax.append(o.bndbox.xmax / self.xml.tree.root.size.height)
+            ymax.append(o.bndbox.ymax / self.xml.tree.root.size.height)
+        return {'image/object/class/text': dataset_util.bytes_list_feature(name),
+                'image/object/class/label': dataset_util.int64_list_feature(label),
+                'image/object/bbox/xmin': dataset_util.int64_list_feature(xmin),
+                'image/object/bbox/ymin': dataset_util.int64_list_feature(ymin),
+                'image/object/bbox/xmax': dataset_util.int64_list_feature(xmax),
+                'image/object/bbox/ymax': dataset_util.int64_list_feature(ymax)}
 
     @property
     def image(self):

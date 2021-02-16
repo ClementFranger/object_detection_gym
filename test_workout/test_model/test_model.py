@@ -32,3 +32,9 @@ class TestConfig(unittest.TestCase):
     def test_update(self):
         Model.instance.config.update()
         assert os.path.isfile(Model.instance.config.config)
+
+    def test_run(self):
+        Model.instance.run()
+
+    def test_tensorboard(self):
+        Model.instance.tensorboard()
