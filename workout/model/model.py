@@ -26,6 +26,9 @@ class Model:
     def config(self):
         return PipelineConfig.instance
 
+    def run(self):
+        return
+
 
 class PipelineConfig:
     instance = None
@@ -33,10 +36,10 @@ class PipelineConfig:
 
     def __init__(self, **kwargs):
         self.config = kwargs.get('config')
-        SSD.factory(**kwargs)
         TrainConfig.factory(**kwargs)
         TrainInput.factory(**kwargs)
         TestInput.factory(**kwargs)
+        SSD.factory(**kwargs)
         # self.data = kwargs.get('data')
         # self.num_classes = kwargs.get('num_classes')
         # self.train = TrainInput(**kwargs)
@@ -82,6 +85,7 @@ class Config:
 class SSD(Config):
     def __init__(self, **kwargs):
         self.num_classes = kwargs.get('num_classes', 1)
+        # TODO : parse label_map.pbtxt to get num_classes
 
 
 class TrainConfig(Config):

@@ -20,7 +20,7 @@ class TestConfig(unittest.TestCase):
     path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
     fine_tune_checkpoint = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\models\ssd_mobilenet_v2_320x320_coco17_tpu-8\checkpoint\ckpt-0'
     num_classes = 1
-    batch_size = 100
+    batch_size = 32
     num_steps = 10000
 
     def setUp(self):
