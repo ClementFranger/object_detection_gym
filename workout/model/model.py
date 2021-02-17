@@ -16,7 +16,9 @@ class Model:
         logger.info('Creating model factory from {path}'.format(path=self.path))
         PipelineConfig.factory(config=Path(os.path.join(kwargs.get('path'), kwargs.get('config', PipelineConfig.name))),
                                **kwargs)
+        self.python = kwargs.get('python') or os.getenv('PYTHON')
         self.training = os.path.join(self.path, 'training')
+        self.graph = os.path.join(self.path, 'graph')
 
     @classmethod
     def factory(cls, **kwargs):
@@ -30,17 +32,21 @@ class Model:
         return PipelineConfig.instance
 
     def run(self, **kwargs):
-        python = kwargs.get('python') or os.getenv('PYTHON')
-        main = kwargs.get('main') or os.getenv('MAIN')
-        cmd = '{python} {main} --pipeline_config_path={config} --model_dir={training}'.format(python=python, main=main,
-                                                                                              config=self.config.config,
-                                                                                              training=self.training)
+        main_train = kwargs.get('main_train') or os.getenv('MAIN_TRAIN')
+        cmd = '{python} {main_train} --pipeline_config_path={config} --model_dir={training}'.format(
+            python=self.python, main_train=main_train, config=self.config.config, training=self.training)
         print('Running command {cmd}'.format(cmd=cmd))
         os.system(cmd)
 
     def tensorboard(self, **kwargs):
-        python = kwargs.get('python') or os.getenv('PYTHON')
-        cmd = '{python} -m tensorboard.main --logdir={training}'.format(python=python, training=self.training)
+        cmd = '{python} -m tensorboard.main --logdir={training}'.format(python=self.python, training=self.training)
+        print('Running command {cmd}'.format(cmd=cmd))
+        os.system(cmd)
+
+    def save(self, **kwargs):
+        main_graph = kwargs.get('main_graph') or os.getenv('MAIN_GRAPH')
+        cmd = '{python} {main_graph} --input_type image_tensor --pipeline_config_path {config} --trained_checkpoint_dir {training} --output_directory {graph}'.format(
+            python=self.python, main_graph=main_graph, config=self.config.config, training=self.training, graph=self.graph)
         print('Running command {cmd}'.format(cmd=cmd))
         os.system(cmd)
 
@@ -55,14 +61,6 @@ class PipelineConfig:
         TrainInput.factory(**kwargs)
         TestInput.factory(**kwargs)
         SSD.factory(**kwargs)
-        # self.data = kwargs.get('data')
-        # self.num_classes = kwargs.get('num_classes')
-        # self.train = TrainInput(**kwargs)
-        # self.test = TestInput(**kwargs)
-        # # self.checkpoint = None
-        # self.num_steps = None
-        # self.fine_tune_checkpoint_type = 'detection'
-        # self.batch_size = 4
 
     @classmethod
     def factory(cls, **kwargs):

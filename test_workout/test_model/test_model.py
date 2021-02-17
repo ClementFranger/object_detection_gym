@@ -38,3 +38,6 @@ class TestConfig(unittest.TestCase):
 
     def test_tensorboard(self):
         Model.instance.tensorboard()
+
+    def test_save(self):
+        Model.instance.save()
