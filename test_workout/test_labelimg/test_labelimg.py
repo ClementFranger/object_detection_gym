@@ -6,7 +6,7 @@ from workout.labelimg.tfrecord import TFRecord, XML
 
 
 class TestLabelIMG(unittest.TestCase):
-    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus'
+    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
 
     def setUp(self):
         self.labelimg = LabelIMG.factory(path=self.path)
@@ -40,7 +40,7 @@ class TestLabelIMG(unittest.TestCase):
 
 
 class TestTrain(unittest.TestCase):
-    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus'
+    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
 
     def setUp(self):
         self.labelimg = LabelIMG.factory(path=self.path)
@@ -64,7 +64,7 @@ class TestTrain(unittest.TestCase):
 
 
 class TestTest(unittest.TestCase):
-    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus'
+    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
 
     def setUp(self):
         self.labelimg = LabelIMG.factory(path=self.path)
@@ -88,7 +88,7 @@ class TestTest(unittest.TestCase):
 
 
 class TestImages(unittest.TestCase):
-    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus'
+    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
 
     def setUp(self):
         self.labelimg = LabelIMG.factory(path=self.path)

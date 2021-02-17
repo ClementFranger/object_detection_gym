@@ -118,10 +118,10 @@ class TFRecord:
             ymax.append(o.bndbox.ymax / self.xml.tree.root.size.height)
         return {'image/object/class/text': dataset_util.bytes_list_feature(name),
                 'image/object/class/label': dataset_util.int64_list_feature(label),
-                'image/object/bbox/xmin': dataset_util.int64_list_feature(xmin),
-                'image/object/bbox/ymin': dataset_util.int64_list_feature(ymin),
-                'image/object/bbox/xmax': dataset_util.int64_list_feature(xmax),
-                'image/object/bbox/ymax': dataset_util.int64_list_feature(ymax)}
+                'image/object/bbox/xmin': dataset_util.float_list_feature(xmin),
+                'image/object/bbox/ymin': dataset_util.float_list_feature(ymin),
+                'image/object/bbox/xmax': dataset_util.float_list_feature(xmax),
+                'image/object/bbox/ymax': dataset_util.float_list_feature(ymax)}
 
     @property
     def image(self):

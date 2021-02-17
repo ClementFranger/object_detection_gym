@@ -6,7 +6,7 @@ from workout.model.model import Model, Config
 
 
 class TestModel(unittest.TestCase):
-    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
+    path = r'/workout/overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
 
     def setUp(self):
         self.model = Model.factory(path=self.path)
@@ -16,15 +16,15 @@ class TestModel(unittest.TestCase):
 
 
 class TestConfig(unittest.TestCase):
-    dofus = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus'
-    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
-    fine_tune_checkpoint = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\models\ssd_mobilenet_v2_320x320_coco17_tpu-8\checkpoint\ckpt-0'
+    overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
+    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
+    fine_tune_checkpoint = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8\checkpoint\ckpt-0'
     num_classes = 1
     batch_size = 32
     num_steps = 10000
 
     def setUp(self):
-        self.labelimg = LabelIMG.factory(path=self.dofus)
+        self.labelimg = LabelIMG.factory(path=self.overwatch)
         self.model = Model.factory(path=self.path, num_classes=self.num_classes, batch_size=self.batch_size,
                                    num_steps=self.num_steps, data=Data.instance,
                                    fine_tune_checkpoint=self.fine_tune_checkpoint)
