@@ -5,23 +5,17 @@ import cv2
 from pyautogui import getWindowsWithTitle
 import numpy as np
 
+from workout.utils import Source
+
 logger = logging.getLogger(__name__)
 
 
-class Video:
-    instance = None
+class Video(Source):
+    name = 'record'
 
     def __init__(self, **kwargs):
-        self.path = kwargs.get('path')
+        super().__init__(**kwargs)
         Application.factory(**kwargs)
-        # self.video = cv2.VideoCapture(self.path)
-
-    @classmethod
-    def factory(cls, **kwargs):
-        if cls.instance is None:
-            cls.instance = cls(**kwargs)
-        assert isinstance(cls.instance, cls)
-        return cls.instance
 
     def _resize(self, **kwargs):
         return cv2.resize(kwargs.get('image'), Application.instance.size)
