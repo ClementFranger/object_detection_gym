@@ -23,6 +23,9 @@ class Source:
     def __init__(self, **kwargs):
         self.source, self.name = kwargs.get('source'), kwargs.get('name') or self.name
         self.path = Path(kwargs.get('path') or os.path.join(self.source, self.name))
+        if not os.path.exists(self.path):
+            logger.warning('{path} does not exist. Creating one'.format(path=self.path))
+            self.path.mkdir(parents=True, exist_ok=True)
         logger.info('Creating {cls} factory from {path}'.format(cls=self.__class__, path=self.path))
 
     @classmethod
