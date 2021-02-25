@@ -2,7 +2,9 @@ import os
 import logging
 from pathlib import Path
 from xml.etree import ElementTree
-from workout.utils import Schema
+
+from workout.labelimg.images import Images
+from workout.utils import Schema, Image
 from object_detection.utils import dataset_util
 
 
@@ -13,9 +15,9 @@ class XML:
     def __init__(self, **kwargs):
         self.path = Path(kwargs.get('path'))
         assert os.path.isfile(self.path)
-        logger.info('Creating XML object from {name}'.format(name=self.path.name))
+        # logger.info('Creating XML object from {name}'.format(name=self.path.name))
         self.tree = Tree(tree=ElementTree.parse(self.path))
-        self.image = kwargs.get('image')
+        # self.image = kwargs.get('image')
 
     @property
     def csv(self):
@@ -33,6 +35,12 @@ class XML:
     @property
     def tfrecord(self):
         return TFRecord(xml=self)
+
+    @property
+    def image(self):
+        image = os.path.join(Images.instance.path, self.path.name.replace('xml', 'jpg'))
+        assert os.path.isfile(image)
+        return Image(path=image)
 
 
 class Tree:

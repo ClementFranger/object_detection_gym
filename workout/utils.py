@@ -1,6 +1,7 @@
 import os
 import logging
 from pathlib import Path
+from tensorflow.python.platform.gfile import GFile
 
 logger = logging.getLogger(__name__)
 
@@ -34,3 +35,19 @@ class Source:
             cls.instance = cls(**kwargs)
         assert isinstance(cls.instance, cls)
         return cls.instance
+
+
+class Image:
+    def __init__(self, **kwargs):
+        self.path = kwargs.get('path')
+
+    @property
+    def encoded(self):
+        with GFile(self.path, 'rb') as f:
+            encoded = f.read()
+        return encoded
+
+    @property
+    def format(self):
+        _, format = os.path.splitext(self.path)
+        return format

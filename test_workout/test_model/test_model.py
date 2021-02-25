@@ -7,11 +7,19 @@ from workout.model.model import Model, TrainInput, PipelineConfig, Checkpoint, T
 
 class TestModel(unittest.TestCase):
     overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
-    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
+    model = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
+    image = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\data\images\1.jpg'
+    num_classes = 1
+    batch_size = 32
+    num_steps = 10000
 
     def setUp(self):
         self.labelimg = LabelIMG.factory(path=self.overwatch)
-        self.model = Model.factory(path=self.path)
+        self.model = Model.factory(model=self.model, num_classes=self.num_classes, batch_size=self.batch_size,
+                                   num_steps=self.num_steps)
+
+    def test_update(self):
+        Model.instance.update()
 
     def test_train(self):
         Model.instance.train()
@@ -22,75 +30,26 @@ class TestModel(unittest.TestCase):
     def test_save(self):
         Model.instance.save()
 
-
-class TestPipelineConfig(unittest.TestCase):
-    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
-
-    def setUp(self):
-        self.model = Model.factory(path=self.path)
-
-    def test_(self):
-        config = Model.instance.pipeline_config
-        assert isinstance(config, PipelineConfig)
-        assert config.name == 'pipeline.config'
-        assert os.path.isdir(config.source)
-        assert os.path.isfile(config.path)
-
-    #TODO : update config class to use training and checkpoint dir
-    def test_update(self):
-        Model.instance.config.update()
-        assert os.path.isfile(Model.instance.config.config)
+    def test_infere(self):
+        print(Model.instance.infere(image=self.image))
 
 
-class TestCheckpoint(unittest.TestCase):
-    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
-
-    def setUp(self):
-        self.model = Model.factory(path=self.path)
-
-    def test_(self):
-        checkpoint = Model.instance.checkpoint
-        assert isinstance(checkpoint, Checkpoint)
-        assert checkpoint.name == 'checkpoint'
-        assert os.path.isdir(checkpoint.source)
-
-    def test_checkpoint(self):
-        checkpoint = Model.instance.checkpoint.checkpoint
 
 
-class TestTraining(unittest.TestCase):
-    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
-
-    def setUp(self):
-        self.model = Model.factory(path=self.path)
-
-    def test_(self):
-        training = Model.instance.training
-        assert isinstance(training, Training)
-        assert training.name == 'training'
-        assert os.path.isdir(training.source)
 
 
-class TestGraph(unittest.TestCase):
-    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
 
-    def setUp(self):
-        self.model = Model.factory(path=self.path)
 
-    def test_(self):
-        graph = Model.instance.graph
-        assert isinstance(graph, Graph)
-        assert graph.name == 'graph'
-        assert os.path.isdir(graph.source)
+
+
+
 
 
 class TestConfig(unittest.TestCase):
     overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
     path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
     fine_tune_checkpoint = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8\checkpoint\ckpt-0'
-    num_classes = 1
-    batch_size = 32
-    num_steps = 10000
+
 
     def setUp(self):
         self.labelimg = LabelIMG.factory(path=self.overwatch)
