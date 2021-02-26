@@ -1,22 +1,18 @@
-import os
 import unittest
 
-from workout.labelimg.labelimg import LabelIMG, Data
-from workout.model.model import Model, TrainInput, PipelineConfig, Checkpoint, Training, Graph
+from workout.labelimg.data import Data
+from workout.model.model import Model
 
 
 class TestModel(unittest.TestCase):
     overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
     model = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
-    image = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\data\images\1.jpg'
-    num_classes = 1
-    batch_size = 32
-    num_steps = 10000
+    num_classes, batch_size, num_steps = 1, 32, 10000
 
     def setUp(self):
-        self.labelimg = LabelIMG.factory(path=self.overwatch)
-        self.model = Model.factory(model=self.model, num_classes=self.num_classes, batch_size=self.batch_size,
-                                   num_steps=self.num_steps)
+        self.data = Data.factory(source=self.overwatch)
+        self.model = Model.factory(path=self.model, num_classes=self.num_classes,
+                                   batch_size=self.batch_size, num_steps=self.num_steps)
 
     def test_update(self):
         Model.instance.update()
@@ -30,8 +26,8 @@ class TestModel(unittest.TestCase):
     def test_save(self):
         Model.instance.save()
 
-    def test_infere(self):
-        print(Model.instance.infere(image=self.image))
+    # def test_infere(self):
+    #     print(Model.instance.infere(image=self.image))
 
 
 

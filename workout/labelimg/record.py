@@ -34,19 +34,12 @@ class Record(Source):
         return frame
 
     def record(self, **kwargs):
-        # count = 0
         Application.factory(**kwargs)
         with mss.mss() as sct:
             while True:
-                # count = count + 1
-                # last_time = time.time()
                 img = self.grab(sct=sct)
                 frame = self.color(image=img)
 
-                # cv2.putText(frame, "FPS: %f" % (1.0 / (time.time() - last_time)),
-                #             (10, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-                # logger.info('Saving file {name}'.format(name=count))
                 cv2.imwrite(os.path.join(self.path, '{count}.jpg'.format(count=round(time.time() * 1000))), frame)
                 time.sleep(0.5)
 

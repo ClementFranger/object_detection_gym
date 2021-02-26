@@ -15,9 +15,7 @@ class XML:
     def __init__(self, **kwargs):
         self.path = Path(kwargs.get('path'))
         assert os.path.isfile(self.path)
-        # logger.info('Creating XML object from {name}'.format(name=self.path.name))
         self.tree = Tree(tree=ElementTree.parse(self.path))
-        # self.image = kwargs.get('image')
 
     @property
     def csv(self):

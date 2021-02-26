@@ -1,8 +1,6 @@
 import os
 import logging
 
-# from workout.labelimg.labelimg import Data
-# from workout.labelimg.tfwriter import ConfigWriter
 from workout.model.checkpoint import Checkpoint
 from workout.model.graph import Graph
 from workout.model.pipeline import PipelineConfig
@@ -14,7 +12,8 @@ logger = logging.getLogger(__name__)
 
 class Model(Source):
     def __init__(self, **kwargs):
-        super().__init__(path=kwargs.get('model'))
+        super().__init__(**kwargs)
+        kwargs.pop('path')
         Checkpoint.factory(source=self.path)
         Training.factory(source=self.path)
         Graph.factory(source=self.path)
@@ -45,7 +44,6 @@ class Model(Source):
         return Graph.instance
 
     def update(self):
-        logger.info('Updating pipeline config')
         self.pipeline_config.update()
 
     def train(self, **kwargs):

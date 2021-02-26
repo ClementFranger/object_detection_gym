@@ -4,6 +4,7 @@ import logging
 from workout.labelimg.data import Data
 from workout.model.checkpoint import Checkpoint
 from workout.utils import Source
+from workout.writer.pipeline_config import PipelineConfigWriter
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +38,8 @@ class PipelineConfig(Source):
 
     @property
     def writer(self):
-        ConfigWriter.factory(path=self.path)
-        return ConfigWriter.instance
+        PipelineConfigWriter.factory(path=self.path)
+        return PipelineConfigWriter.instance
 
     def update(self):
         logger.info('Updating pipeline config')

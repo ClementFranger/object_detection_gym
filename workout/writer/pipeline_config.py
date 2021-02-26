@@ -1,4 +1,3 @@
-import os
 import logging
 import tensorflow as tf
 from pathlib import Path
@@ -14,7 +13,7 @@ class PipelineConfigWriter:
 
     def __init__(self, **kwargs):
         self.path = Path(kwargs.get('path'))
-        logger.info('Initializing ConfigWriter to {path}'.format(path=self.path))
+        logger.info('Initializing PipelineConfigWriter to {path}'.format(path=self.path))
 
     @classmethod
     def factory(cls, **kwargs):
