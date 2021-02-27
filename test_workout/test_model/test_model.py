@@ -30,34 +30,7 @@ class TestModel(unittest.TestCase):
     #     print(Model.instance.infere(image=self.image))
 
 
-
-
-
-
-
-
-
-
-
-
-
-class TestConfig(unittest.TestCase):
-    overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
-    path = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
-    fine_tune_checkpoint = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8\checkpoint\ckpt-0'
-
-
-    def setUp(self):
-        self.labelimg = LabelIMG.factory(path=self.overwatch)
-        self.model = Model.factory(path=self.path, num_classes=self.num_classes, batch_size=self.batch_size,
-                                   num_steps=self.num_steps, data=Data.instance,
-                                   fine_tune_checkpoint=self.fine_tune_checkpoint)
-
-
-
-
-
-    def test_(self):
+    def test_infere(self):
         import cv2
         import tensorflow as tf
         from tensorflow.core.framework.graph_pb2 import GraphDef
@@ -71,14 +44,14 @@ class TestConfig(unittest.TestCase):
         #     label_map, max_num_classes=1, use_display_name=True)
         # category_index = label_map_util.create_category_index(categories)
 
-        category_index = label_map_util.create_category_index_from_labelmap(TrainInput.instance.labels, use_display_name=True)
+        category_index = label_map_util.create_category_index_from_labelmap(Data.instance.labels_pbtxt, use_display_name=True)
         graph = tf.saved_model.load(r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8\graph\saved_model', tags=None, options=None)
         infer = graph.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
 
         import numpy as np
         from PIL import Image
         import matplotlib.pyplot as plt
-        image_np = np.array(Image.open((r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\data\images\71.jpg')))
+        image_np = np.array(Image.open((r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\data\images\1614284663619.jpg')))
 
         # Things to try:
         # Flip horizontally
@@ -100,13 +73,21 @@ class TestConfig(unittest.TestCase):
         # Convert to numpy arrays, and take index [0] to remove the batch dimension.
         # We're only interested in the first num_detections.
         num_detections = int(detections.pop('num_detections'))
+        # print('num detections %s' % num_detections)
+        # print('detections length %s' % len(detections))
+        # print('detections keys %s' % detections.keys())
+        # print('detections anchor indices %s' % detections.get('detection_boxes'))
         detections = {key: value[0, :num_detections].numpy()
                       for key, value in detections.items()}
+        detections = {key: value[0] if isinstance(value, list) else np.array([value[0]])
+                      for key, value in detections.items()}
+        print(detections)
         detections['num_detections'] = num_detections
 
         # detection_classes should be ints.
         detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
 
+        # print('detections anchor indices %s' % detections.get('detection_boxes'))
         image_np_with_detections = image_np.copy()
 
         img = viz_utils.visualize_boxes_and_labels_on_image_array(
@@ -125,3 +106,8 @@ class TestConfig(unittest.TestCase):
         # plt.figure()
         # plt.imshow(image_np_with_detections)
         # plt.show()
+
+
+
+
+

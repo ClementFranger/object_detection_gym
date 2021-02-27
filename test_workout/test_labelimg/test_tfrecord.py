@@ -2,13 +2,16 @@ import os
 import unittest
 import tensorflow as tf
 
+from workout.labelimg.data import Data
 from workout.labelimg.tfrecord import XML, Tree, Root, Size, BNDBOX, TFRecord
 
 
 class TestXML(unittest.TestCase):
+    overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
     xml = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\data\labels\1.xml'
 
     def setUp(self):
+        self.data = Data.factory(source=self.overwatch)
         self.xml = XML(path=self.xml)
 
     def test_xml(self):
@@ -55,13 +58,14 @@ class TestXML(unittest.TestCase):
 
 
 class TestTFRecord(unittest.TestCase):
-    xml = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\data\labels\1.xml'
+    overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
+    xml = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\data\labels\1614284494123.xml'
 
     def setUp(self):
+        self.data = Data.factory(source=self.overwatch)
         self.tfrecord = TFRecord(xml=XML(path=self.xml))
 
     def test_tfrecord(self):
         assert isinstance(self.tfrecord, TFRecord)
         assert isinstance(self.tfrecord.tfrecord, dict)
-        assert isinstance(self.tfrecord.tfrecord.get('filename'), tf.train.Feature)
-        assert isinstance(self.tfrecord.tfrecord.get('name'), tf.train.Feature)
+        assert isinstance(self.tfrecord.tfrecord.get('image/filename'), tf.train.Feature)

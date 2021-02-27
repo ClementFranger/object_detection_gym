@@ -119,8 +119,8 @@ class TFRecord:
             name.append(o.name.encode('utf8'))
             label.append(1)
             xmin.append(o.bndbox.xmin / self.xml.tree.root.size.width)
-            ymin.append(o.bndbox.ymin / self.xml.tree.root.size.width)
-            xmax.append(o.bndbox.xmax / self.xml.tree.root.size.height)
+            ymin.append(o.bndbox.ymin / self.xml.tree.root.size.height)
+            xmax.append(o.bndbox.xmax / self.xml.tree.root.size.width)
             ymax.append(o.bndbox.ymax / self.xml.tree.root.size.height)
         return {'image/object/class/text': dataset_util.bytes_list_feature(name),
                 'image/object/class/label': dataset_util.int64_list_feature(label),

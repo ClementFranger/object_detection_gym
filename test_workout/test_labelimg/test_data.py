@@ -44,3 +44,10 @@ class TestData(unittest.TestCase):
 
     def test_test_records(self):
         assert os.path.isfile(Data.instance.test_records)
+
+    def test_tfrecords_write(self):
+        Data.instance.tfrecords_write()
+        assert os.path.isfile(Data.instance.train_records)
+        assert os.path.getsize(Data.instance.train_records) > 0
+        assert os.path.isfile(Data.instance.test_records)
+        assert os.path.getsize(Data.instance.test_records) > 0
