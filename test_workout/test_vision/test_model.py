@@ -3,8 +3,8 @@ import unittest
 
 from tensorflow.python.saved_model.load import _WrapperFunction
 
-from workout.detection.detection import Detection
-from workout.detection.model import Model
+from workout.vision.detection import Detection
+from workout.vision.model import Model
 
 
 class TestModel(unittest.TestCase):

@@ -9,7 +9,6 @@ class ImageTensor:
 
     @property
     def tensor(self):
-        print('convert to tensor')
         input_tensor = tf.convert_to_tensor(self.image.np_array)
         input_tensor = input_tensor[tf.newaxis, ...]
         return input_tensor
