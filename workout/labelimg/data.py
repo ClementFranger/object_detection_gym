@@ -49,6 +49,7 @@ class Data(Source):
     def test_records(self):
         return os.path.join(self.path, 'test.record')
 
+    # TODO : rewrite this as two seperate function, somehow messes up the tfrecords
     def tfrecords_write(self):
         self.train.tfrecords_write(path=self.train_records)
         self.test.tfrecords_write(path=self.test_records)

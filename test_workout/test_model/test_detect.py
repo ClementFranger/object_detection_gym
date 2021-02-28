@@ -1,9 +1,7 @@
-import os
 import unittest
 
-from workout.labelimg.labelimg import LabelIMG, Data
-from workout.model.detection import DetectionModelInterface, ImageTensor, DetectionModel
-from workout.model.model import Model, TrainInput, PipelineConfig, Checkpoint, Training, Graph
+from workout.detection.detection import DetectionModelInterface, ImageTensor
+from workout.model.model import Model, Graph
 
 
 class TestDetectionModel(unittest.TestCase):

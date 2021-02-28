@@ -1,5 +1,7 @@
 import os
 import logging
+import numpy as np
+import PIL
 from pathlib import Path
 from tensorflow.python.platform.gfile import GFile
 
@@ -51,3 +53,7 @@ class Image:
     def format(self):
         _, format = os.path.splitext(self.path)
         return format
+
+    @property
+    def np_array(self):
+        return np.array(PIL.Image.open((self.path)))
