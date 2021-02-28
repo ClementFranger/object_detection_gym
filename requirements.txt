@@ -6,3 +6,5 @@ matplotlib
 pyyaml
 pycocotools
 lvis
+mss
+pyautogui

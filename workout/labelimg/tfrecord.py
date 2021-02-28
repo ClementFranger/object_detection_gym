@@ -2,7 +2,9 @@ import os
 import logging
 from pathlib import Path
 from xml.etree import ElementTree
-from workout.utils import Schema
+
+from workout.labelimg.images import Images
+from workout.utils import Schema, Image
 from object_detection.utils import dataset_util
 
 
@@ -13,9 +15,7 @@ class XML:
     def __init__(self, **kwargs):
         self.path = Path(kwargs.get('path'))
         assert os.path.isfile(self.path)
-        logger.info('Creating XML object from {name}'.format(name=self.path.name))
         self.tree = Tree(tree=ElementTree.parse(self.path))
-        self.image = kwargs.get('image')
 
     @property
     def csv(self):
@@ -33,6 +33,12 @@ class XML:
     @property
     def tfrecord(self):
         return TFRecord(xml=self)
+
+    @property
+    def image(self):
+        image = os.path.join(Images.instance.path, self.path.name.replace('xml', 'jpg'))
+        assert os.path.isfile(image)
+        return Image(path=image)
 
 
 class Tree:
@@ -113,15 +119,15 @@ class TFRecord:
             name.append(o.name.encode('utf8'))
             label.append(1)
             xmin.append(o.bndbox.xmin / self.xml.tree.root.size.width)
-            ymin.append(o.bndbox.ymin / self.xml.tree.root.size.width)
-            xmax.append(o.bndbox.xmax / self.xml.tree.root.size.height)
+            ymin.append(o.bndbox.ymin / self.xml.tree.root.size.height)
+            xmax.append(o.bndbox.xmax / self.xml.tree.root.size.width)
             ymax.append(o.bndbox.ymax / self.xml.tree.root.size.height)
         return {'image/object/class/text': dataset_util.bytes_list_feature(name),
                 'image/object/class/label': dataset_util.int64_list_feature(label),
-                'image/object/bbox/xmin': dataset_util.int64_list_feature(xmin),
-                'image/object/bbox/ymin': dataset_util.int64_list_feature(ymin),
-                'image/object/bbox/xmax': dataset_util.int64_list_feature(xmax),
-                'image/object/bbox/ymax': dataset_util.int64_list_feature(ymax)}
+                'image/object/bbox/xmin': dataset_util.float_list_feature(xmin),
+                'image/object/bbox/ymin': dataset_util.float_list_feature(ymin),
+                'image/object/bbox/xmax': dataset_util.float_list_feature(xmax),
+                'image/object/bbox/ymax': dataset_util.float_list_feature(ymax)}
 
     @property
     def image(self):
