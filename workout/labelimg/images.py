@@ -1,5 +1,7 @@
 import logging
-from workout.utils import Source, Image
+
+from workout.image import PathImage
+from workout.utils import Source
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +18,7 @@ class Images(Source):
     def images(self):
         images = []
         for i in list(self.path.glob('*.jpg')):
-            images.append(Image(path=i))
+            images.append(PathImage(path=i))
         return images
 
     @property

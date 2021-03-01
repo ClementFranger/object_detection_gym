@@ -6,8 +6,8 @@ from workout.vision.vision import Vision
 class TestDetection(TestTensorflow):
     overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
     graph = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8\graph'
-    image = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\data\images\1614284494123.jpg'
-    fps = 10
+    image = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\data\images\1614284550307.jpg'
+    fps = 5
 
     def setUp(self):
         super().setUp()

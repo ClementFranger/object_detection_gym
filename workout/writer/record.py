@@ -13,3 +13,8 @@ class RecordWriter:
         """ make sure the fps match the computer processing speed """
         self.writer = cv2.VideoWriter(str(self.path), cv2.VideoWriter_fourcc(*"XVID"), kwargs.get('fps', 30.0),
                                       self.application.size)
+
+    def write(self, **kwargs):
+        """ important : do not convert color before detection (idk why) """
+        image = cv2.cvtColor(kwargs.get('image'), cv2.COLOR_BGR2RGB)
+        self.writer.write(image)

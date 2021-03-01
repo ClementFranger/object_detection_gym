@@ -3,8 +3,9 @@ import logging
 from pathlib import Path
 from xml.etree import ElementTree
 
+from workout.image import PathImage
 from workout.labelimg.images import Images
-from workout.utils import Schema, Image
+from workout.utils import Schema
 from object_detection.utils import dataset_util
 
 
@@ -38,7 +39,7 @@ class XML:
     def image(self):
         image = os.path.join(Images.instance.path, self.path.name.replace('xml', 'jpg'))
         assert os.path.isfile(image)
-        return Image(path=image)
+        return PathImage(path=image)
 
 
 class Tree:

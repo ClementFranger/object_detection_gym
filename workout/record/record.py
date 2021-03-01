@@ -5,10 +5,10 @@ import time
 import cv2
 import mss
 
+from workout.image import MSSImage
 from workout.record.application import Application
-from workout.utils import MSSImage, Source
+from workout.utils import Source
 from workout.vision.detection import Detection
-from workout.vision.tensor import ImageTensor
 from workout.writer.record import RecordWriter
 
 logger = logging.getLogger(__name__)
@@ -30,10 +30,10 @@ class Record(Source):
         with mss.mss() as sct:
             while True:
                 start_time = time.time()
-                image = MSSImage(image=sct.grab(self.application.monitor)).cleaned
-                writer.write(image)
+                image = MSSImage(image=sct.grab(self.application.monitor))
+                writer.write(image.cleaned)
 
-                if keyboard.is_pressed('a'):
+                if keyboard.is_pressed('x'):
                     break
 
                 logger.info('Process time is {time}'.format(time=time.time() - start_time))
@@ -54,11 +54,11 @@ class Record(Source):
                 image = MSSImage(image=sct.grab(self.application.monitor))
 
                 """ detection """
-                detections = Detection(tensor=ImageTensor(image=image).tensor, **kwargs)
+                detections = Detection(tensor=image.tensor, **kwargs)
                 image = image.draw_boxes(detections=detections, **kwargs)
 
                 writer.write(image)
-                if keyboard.is_pressed('a'):
+                if keyboard.is_pressed('x'):
                     break
 
                 logger.info('Process time is {time}'.format(time=time.time() - start_time))

@@ -1,22 +1,25 @@
 import logging
 import os
+import time
 
 import cv2
 
 import PIL
+import keyboard
+import mss
 import tensorflow as tf
 from object_detection.utils import label_map_util
 
+from workout.image import MSSImage, PathImage
+from workout.record.application import Application
 from workout.record.record import Record
 from workout.vision.detection import Detection
 from workout.vision.model import Model
-from workout.vision.tensor import ImageTensor
-from workout.utils import Image, MSSImage
+from workout.writer.record import RecordWriter
 
 logger = logging.getLogger(__name__)
 
 
-# TODO : solve this session problem so that we can load model from another class. For now do everything here
 class Vision:
     instance = None
 
@@ -48,46 +51,47 @@ class Vision:
 
     def detect_image(self, **kwargs):
         category_index = self.category_index(**kwargs)
-        model, image = self.model_with_signatures(), Image(path=kwargs.get('image'))
-        detections = Detection(model=model, tensor=ImageTensor(image=image).tensor, **kwargs)
-        img = image.draw_boxes(detections=detections, category_index=category_index)
+        model, image = self.model_with_signatures(), PathImage(path=kwargs.get('image'))
+        """ detection """
+        detections = Detection(image=image, model=model)
+        image = detections.draw_boxes(category_index=category_index, **kwargs)
 
-        im = PIL.Image.fromarray(img)
+        im = PIL.Image.fromarray(image)
         im.save("your_file.jpeg")
 
     def detect_video(self, **kwargs):
         category_index, model = self.category_index(**kwargs), self.model_with_signatures()
-        # model, image = self.model_with_signatures(), Image(path=kwargs.get('image'))
-        # detections = Detection(model=model, tensor=ImageTensor(image=image).tensor, **kwargs)
-        # img = image.draw_boxes(detections=detections, category_index=category_index)
-        # Record.instance.record_video_with_detection(category_index=category_index, model=model, **kwargs)
-        from workout.record.application import Application
         Application.factory(**kwargs)
-        from workout.writer.record import RecordWriter
-        writer = RecordWriter(path=os.path.join(self.record.path, kwargs.get('output')), application=self.record.application,
-                              **kwargs).writer
+        record_writer = RecordWriter(path=os.path.join(self.record.path, kwargs.get('output')),
+                                     application=self.record.application, **kwargs)
 
         logger.info('Writting recorded video into {path}'.format(path=self.record.path))
-        import mss
         with mss.mss() as sct:
             while True:
-                import time
                 start_time = time.time()
+                logger.info('Grabbing monitor %s' % self.record.application.monitor)
                 image = MSSImage(image=sct.grab(self.record.application.monitor))
+                # image = PathImage(path=kwargs.get('image'))
+                grab_time = time.time()
+                logger.info('grab time is %s' % (grab_time - start_time))
 
                 """ detection """
-                detections = Detection(tensor=ImageTensor(image=image.cleaneda).tensor, model=model, **kwargs)
-                image = image.draw_boxes(detections=detections, category_index=category_index, **kwargs)
+                detections = Detection(image=image, model=model)
+                image = detections.draw_boxes(category_index=category_index, **kwargs)
 
-                writer.write(image)
-                import keyboard
-                if keyboard.is_pressed('a'):
+                write_time = time.time()
+                """ important : do not convert color before detection (idk why) """
+                # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                # writer.write(image)
+                record_writer.write(image=image)
+                logger.info('write time is %s' % (time.time() - write_time))
+                if keyboard.is_pressed('x'):
                     break
 
                 logger.info('Process time is {time}'.format(time=time.time() - start_time))
         logger.info('Successfully wrote recorded video into {path}'.format(path=self.record.path))
 
-        writer.release()
+        record_writer.writer.release()
         cv2.destroyAllWindows()
     # def detect_video(self, **kwargs):
     #     # Application.factory(**kwargs)
