@@ -69,18 +69,18 @@ class Vision:
         with mss.mss() as sct:
             while True:
                 start_time = time.time()
-                logger.info('Grabbing monitor %s' % self.record.application.monitor)
+                # logger.info('Grabbing monitor %s' % self.record.application.monitor)
                 image = MSSImage(image=sct.grab(self.record.application.monitor))
                 # image = PathImage(path=kwargs.get('image'))
-                grab_time = time.time()
-                logger.info('grab time is %s' % (grab_time - start_time))
+                # grab_time = time.time()
+                # logger.info('grab time is %s' % (grab_time - start_time))
 
                 """ detection """
                 detections = Detection(image=image, model=model)
                 image = detections.draw_boxes(category_index=category_index, **kwargs)
 
                 write_time = time.time()
-                """ important : do not convert color before detection (idk why) """
+                # """ important : do not convert color before detection (idk why) """
                 # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 # writer.write(image)
                 record_writer.write(image=image)

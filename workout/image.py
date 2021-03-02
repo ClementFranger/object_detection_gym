@@ -68,9 +68,9 @@ class MSSImage(Image):
         self.cleaned = self.clean()
 
     def clean(self):
-        logger.info('cleaning frame')
+        # logger.info('cleaning frame')
         image = self._resize(image=self.np_array)
-        image = self._color(image=image)
+        # image = self._color(image=image)
         return image
 
     @property
@@ -80,14 +80,14 @@ class MSSImage(Image):
         return image
 
     def _resize(self, **kwargs):
-        logger.info('Resizing image to {size}'.format(size=Application.instance.size))
+        # logger.info('Resizing image to {size}'.format(size=Application.instance.size))
         return cv2.resize(kwargs.get('image'), Application.instance.size)
 
-    def _color(self, **kwargs):
-        # image = cv2.cvtColor(kwargs.get('image'), cv2.COLOR_RGB2BGR)
-        # image = cv2.cvtColor(kwargs.get('image'), cv2.COLOR_BGR2RGB)
-        # return image
-        return kwargs.get('image')
+    # def _color(self, **kwargs):
+    #     # image = cv2.cvtColor(kwargs.get('image'), cv2.COLOR_RGB2BGR)
+    #     # image = cv2.cvtColor(kwargs.get('image'), cv2.COLOR_BGR2RGB)
+    #     # return image
+    #     return kwargs.get('image')
 
     # def draw_boxes(self, **kwargs):
     #     detections, category_index = kwargs.get('detections'), kwargs.get('category_index')

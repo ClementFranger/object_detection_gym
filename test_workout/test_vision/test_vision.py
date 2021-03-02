@@ -7,7 +7,8 @@ class TestDetection(TestTensorflow):
     overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
     graph = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8\graph'
     image = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\data\images\1614284550307.jpg'
-    fps = 5
+    test = r'C:\Users\Minifranger\Downloads\test.jpg'
+    fps = 8
 
     def setUp(self):
         super().setUp()
@@ -15,7 +16,7 @@ class TestDetection(TestTensorflow):
         self.vision = Vision.factory(source=self.graph)
 
     def test_detect_image(self):
-        Vision.instance.detect_image(labels=Data.instance.labels_pbtxt, image=self.image)
+        Vision.instance.detect_image(labels=Data.instance.labels_pbtxt, image=self.test)
 
     def test_detect_video(self):
         Vision.instance.detect_video(labels=Data.instance.labels_pbtxt, output='test_output.avi', title='Overwatch', fps=self.fps)
