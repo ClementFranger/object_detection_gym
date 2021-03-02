@@ -8,3 +8,4 @@ pycocotools
 lvis
 mss
 pyautogui
+keyboard
