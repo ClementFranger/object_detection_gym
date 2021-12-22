@@ -1,16 +1,17 @@
 import os
 import unittest
 
+from workout.image import Image
 from workout.labelimg.data import Data
 from workout.labelimg.images import Images
-from workout.utils import Image
 
 
 class TestImages(unittest.TestCase):
     overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
+    dofus = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus'
 
     def setUp(self):
-        self.data = Data.factory(source=self.overwatch)
+        self.data = Data.factory(source=self.dofus)
 
     def test_(self):
         assert isinstance(Images.instance, Images)

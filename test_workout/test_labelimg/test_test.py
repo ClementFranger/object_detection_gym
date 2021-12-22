@@ -8,9 +8,10 @@ from workout.labelimg.test import Test
 
 class TestTest(unittest.TestCase):
     overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
+    dofus = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus'
 
     def setUp(self):
-        self.data = Data.factory(source=self.overwatch)
+        self.data = Data.factory(source=self.dofus)
 
     def test_(self):
         assert isinstance(Test.instance, Test)
