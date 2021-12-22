@@ -1,6 +1,6 @@
 import os
-import unittest
 
+from test_workout import TestTensorflow
 from workout.labelimg.data import Data
 from workout.labelimg.images import Images
 from workout.labelimg.labels import Labels
@@ -8,11 +8,10 @@ from workout.labelimg.test import Test
 from workout.labelimg.train import Train
 
 
-class TestData(unittest.TestCase):
-    overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
-    dofus = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus'
+class TestData(TestTensorflow):
 
     def setUp(self):
+        super().setUp()
         self.data = Data.factory(source=self.dofus)
 
     def test_(self):

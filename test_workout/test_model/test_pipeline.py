@@ -1,20 +1,19 @@
 import os
-import unittest
 
+from test_workout import TestTensorflow
 from workout.labelimg.data import Data
 from workout.model.checkpoint import Checkpoint
 from workout.model.pipeline import PipelineConfig
 
 
-class TestPipelineConfig(unittest.TestCase):
-    overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
-    model = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
+class TestPipelineConfig(TestTensorflow):
     num_classes, batch_size, num_steps = 1, 32, 10000
 
     def setUp(self):
-        self.data = Data.factory(source=self.overwatch)
-        self.checkpoint = Checkpoint.factory(source=self.model)
-        self.pipeline_config = PipelineConfig.factory(source=self.model, num_classes=self.num_classes,
+        super().setUp()
+        self.data = Data.factory(source=self.dofus)
+        self.checkpoint = Checkpoint.factory(source=self.dofus_model)
+        self.pipeline_config = PipelineConfig.factory(source=self.dofus_model, num_classes=self.num_classes,
                                                       batch_size=self.batch_size, num_steps=self.num_steps)
 
     def test_(self):
@@ -33,8 +32,8 @@ class TestPipelineConfig(unittest.TestCase):
 
     def test_train_input(self):
         assert self.pipeline_config.train_input.labels == self.data.labels_pbtxt
-        assert self.pipeline_config.train_input.input == self.data.train_record
+        assert self.pipeline_config.train_input.input == self.data.train_records
 
     def test_test_input(self):
         assert self.pipeline_config.test_input.labels == self.data.labels_pbtxt
-        assert self.pipeline_config.test_input.input == self.data.test_record
+        assert self.pipeline_config.test_input.input == self.data.test_records

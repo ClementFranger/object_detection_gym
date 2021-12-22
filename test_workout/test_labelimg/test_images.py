@@ -1,16 +1,15 @@
 import os
-import unittest
 
+from test_workout import TestTensorflow
 from workout.image import Image
 from workout.labelimg.data import Data
 from workout.labelimg.images import Images
 
 
-class TestImages(unittest.TestCase):
-    overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
-    dofus = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus'
+class TestImages(TestTensorflow):
 
     def setUp(self):
+        super().setUp()
         self.data = Data.factory(source=self.dofus)
 
     def test_(self):

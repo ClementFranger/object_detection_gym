@@ -1,18 +1,15 @@
-import unittest
-
+from test_workout import TestTensorflow
 from workout.labelimg.data import Data
 from workout.model.model import Model
 
 
-class TestModel(unittest.TestCase):
-    overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
-    dofus = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus'
-    model = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
+class TestModel(TestTensorflow):
     num_classes, batch_size, num_steps = 6, 32, 500
 
     def setUp(self):
+        super().setUp()
         self.data = Data.factory(source=self.dofus)
-        self.model = Model.factory(path=self.model, num_classes=self.num_classes,
+        self.model = Model.factory(path=self.dofus_model, num_classes=self.num_classes,
                                    batch_size=self.batch_size, num_steps=self.num_steps)
 
     def test_update(self):

@@ -1,14 +1,13 @@
 import os
-import unittest
 
+from test_workout import TestTensorflow
 from workout.model.checkpoint import Checkpoint
 
 
-class TestCheckpoint(unittest.TestCase):
-    model = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
+class TestCheckpoint(TestTensorflow):
 
     def setUp(self):
-        self.checkpoint = Checkpoint.factory(source=self.model)
+        self.checkpoint = Checkpoint.factory(source=self.dofus_model)
 
     def test_(self):
         assert isinstance(Checkpoint.instance, Checkpoint)

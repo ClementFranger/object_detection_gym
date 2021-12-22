@@ -1,15 +1,15 @@
 import os
-import unittest
 
+from test_workout import TestTensorflow
 from workout.labelimg.data import Data
 from workout.labelimg.labels import Labels
 
 
-class TestLabels(unittest.TestCase):
-    overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
+class TestLabels(TestTensorflow):
 
     def setUp(self):
-        self.data = Data.factory(source=self.overwatch)
+        super().setUp()
+        self.data = Data.factory(source=self.dofus)
 
     def test_(self):
         assert isinstance(Labels.instance, Labels)
