@@ -4,7 +4,7 @@ from workout.model.model import Model
 
 
 class TestModel(TestTensorflow):
-    num_classes, batch_size, num_steps = 6, 32, 500
+    num_classes, batch_size, num_steps = 6, 32, 10000
 
     def setUp(self):
         super().setUp()
