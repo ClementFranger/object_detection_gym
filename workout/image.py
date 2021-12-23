@@ -8,7 +8,7 @@ import tensorflow as tf
 from mss.screenshot import ScreenShot
 from tensorflow.python.platform.gfile import GFile
 
-from workout.record.application import Application
+# from workout.record.application import Application
 
 logger = logging.getLogger(__name__)
 
@@ -47,11 +47,14 @@ class PathImage(Image):
 class MSSImage(Image):
     def __init__(self, **kwargs):
         self.image = kwargs.get('image')
+        self.application = kwargs.get('application')
         assert isinstance(self.image, ScreenShot)
         self.cleaned = self.clean()
 
     def clean(self):
         image = self._resize(image=self.np_array)
+        # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image
 
     @property
@@ -61,5 +64,5 @@ class MSSImage(Image):
         return image
 
     def _resize(self, **kwargs):
-        return cv2.resize(kwargs.get('image'), Application.instance.size)
+        return cv2.resize(kwargs.get('image'), self.application.size)
 
