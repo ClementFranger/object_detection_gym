@@ -1,14 +1,13 @@
 import os
-import unittest
 
+from test_workout import TestTensorflow
 from workout.model.graph import Graph
 
 
-class TestGraph(unittest.TestCase):
-    model = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\models\ssd_mobilenet_v2_320x320_coco17_tpu-8'
+class TestGraph(TestTensorflow):
 
     def setUp(self):
-        self.graph = Graph.factory(source=self.model)
+        self.graph = Graph.factory(source=self.dofus_model)
 
     def test_(self):
         assert isinstance(Graph.instance, Graph)

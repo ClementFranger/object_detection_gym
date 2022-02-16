@@ -1,8 +1,5 @@
-import time
 import logging
-from functools import wraps
 import numpy as np
-from tensorflow import Tensor
 from object_detection.utils import visualization_utils
 
 from workout.image import Image
@@ -11,24 +8,20 @@ logger = logging.getLogger(__name__)
 
 
 class Detection:
-
-    class Decorators:
-        @classmethod
-        def time(cls, f):
-            @wraps(f)
-            def wrapper(self, *args, **kwargs):
-                start_time = time.time()
-                result = f(self, *args, **kwargs)
-                end_time = time.time()
-                logger.info('{name} function took {time} seconds'.format(name=f.__name__, time=round(end_time - start_time, 2)))
-                return result
-            return wrapper
+    instance = None
 
     def __init__(self, **kwargs):
-        self.model = kwargs.get('model')
-        self.image = kwargs.get('image')
-        assert isinstance(self.image, Image)
-        self.detections = self._clean(detections=self.detect())
+        self.model = None
+        self.image = None
+        """ result of tensorflow model detection on image """
+        self.detections = None
+
+    @classmethod
+    def factory(cls, **kwargs):
+        if cls.instance is None:
+            cls.instance = cls(**kwargs)
+        assert isinstance(cls.instance, cls)
+        return cls.instance
 
     @property
     def num_detections(self):
@@ -59,11 +52,18 @@ class Detection:
         detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
         return detections
 
-    @Decorators.time
-    def detect(self):
-        return self.model(self.image.tensor)
+    def _update_inputs(self, **kwargs):
+        self.model = kwargs.get('model')
+        self.image = kwargs.get('image')
+        assert isinstance(self.image, Image)
 
-    @Decorators.time
+    def detect(self, **kwargs):
+        if kwargs.get('model') and kwargs.get('image'):
+            self._update_inputs(**kwargs)
+        detections = self.model(self.image.tensor)
+        self.detections = detections if kwargs.get('clean', False) else self._clean(detections=detections)
+        return self.detections
+
     def draw_boxes(self, **kwargs):
         category_index = kwargs.get('category_index')
         min_score_thresh = kwargs.get('min_score_thresh', 0.30)

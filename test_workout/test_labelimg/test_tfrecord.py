@@ -1,16 +1,16 @@
 import os
-import unittest
 import tensorflow as tf
 
+from test_workout import TestTensorflow
 from workout.labelimg.data import Data
 from workout.labelimg.tfrecord import XML, Tree, Root, Size, BNDBOX, TFRecord
 
 
-class TestXML(unittest.TestCase):
-    overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
+class TestXML(TestTensorflow):
     xml = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\dofus\data\labels\1.xml'
 
     def setUp(self):
+        super().setUp()
         self.data = Data.factory(source=self.overwatch)
         self.xml = XML(path=self.xml)
 
@@ -57,11 +57,11 @@ class TestXML(unittest.TestCase):
         assert isinstance(python.get('annotation').get('object'), list)
 
 
-class TestTFRecord(unittest.TestCase):
-    overwatch = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch'
+class TestTFRecord(TestTensorflow):
     xml = r'C:\Users\Minifranger\Documents\python_scripts\workout\workout\overwatch\data\labels\1614284494123.xml'
 
     def setUp(self):
+        super().setUp()
         self.data = Data.factory(source=self.overwatch)
         self.tfrecord = TFRecord(xml=XML(path=self.xml))
 

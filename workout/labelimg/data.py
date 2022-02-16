@@ -1,5 +1,8 @@
 import os
 import logging
+
+from object_detection.utils import label_map_util
+
 from workout.labelimg.images import Images
 from workout.labelimg.labels import Labels
 from workout.labelimg.test import Test
@@ -48,6 +51,10 @@ class Data(Source):
     @property
     def test_records(self):
         return os.path.join(self.path, 'test.record')
+
+    @property
+    def category_index(self, **kwargs):
+        return label_map_util.create_category_index_from_labelmap(self.labels_pbtxt, use_display_name=True)
 
     # TODO : rewrite this as two seperate function, somehow messes up the tfrecords
     def tfrecords_write(self):
