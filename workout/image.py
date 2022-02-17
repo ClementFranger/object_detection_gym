@@ -8,8 +8,6 @@ import tensorflow as tf
 from mss.screenshot import ScreenShot
 from tensorflow.python.platform.gfile import GFile
 
-# from workout.record.application import Application
-
 logger = logging.getLogger(__name__)
 
 

@@ -2,7 +2,6 @@ import os
 import logging
 from pathlib import Path
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -10,7 +9,7 @@ class Schema:
 
     @classmethod
     def keys(cls):
-        return [k for k in vars(cls) if not k.startswith('__')]
+        return [k for k in vars(cls)]
 
     @classmethod
     def values(cls):
