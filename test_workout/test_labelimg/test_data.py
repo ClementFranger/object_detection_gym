@@ -12,7 +12,7 @@ class TestData(TestTensorflow):
 
     def setUp(self):
         super().setUp()
-        self.data = Data.factory(source=self.dofus)
+        self.data = Data.factory(source=self.data)
 
     def test_(self):
         assert isinstance(Data.instance, Data)

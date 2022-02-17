@@ -8,7 +8,7 @@ class TestTraining(TestTensorflow):
 
     def setUp(self):
         super().setUp()
-        self.training = Training.factory(source=self.dofus_model)
+        self.training = Training.factory(source=self.model)
 
     def test_(self):
         assert isinstance(Training.instance, Training)

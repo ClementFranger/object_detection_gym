@@ -7,7 +7,7 @@ from workout.model.checkpoint import Checkpoint
 class TestCheckpoint(TestTensorflow):
 
     def setUp(self):
-        self.checkpoint = Checkpoint.factory(source=self.dofus_model)
+        self.checkpoint = Checkpoint.factory(source=self.model)
 
     def test_(self):
         assert isinstance(Checkpoint.instance, Checkpoint)

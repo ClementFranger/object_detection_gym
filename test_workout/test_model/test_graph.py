@@ -7,7 +7,7 @@ from workout.model.graph import Graph
 class TestGraph(TestTensorflow):
 
     def setUp(self):
-        self.graph = Graph.factory(source=self.dofus_model)
+        self.graph = Graph.factory(source=self.model)
 
     def test_(self):
         assert isinstance(Graph.instance, Graph)

@@ -11,9 +11,9 @@ class TestPipelineConfig(TestTensorflow):
 
     def setUp(self):
         super().setUp()
-        self.data = Data.factory(source=self.dofus)
-        self.checkpoint = Checkpoint.factory(source=self.dofus_model)
-        self.pipeline_config = PipelineConfig.factory(source=self.dofus_model, num_classes=self.num_classes,
+        self.data = Data.factory(source=self.data)
+        self.checkpoint = Checkpoint.factory(source=self.model)
+        self.pipeline_config = PipelineConfig.factory(source=self.model, num_classes=self.num_classes,
                                                       batch_size=self.batch_size, num_steps=self.num_steps)
 
     def test_(self):
