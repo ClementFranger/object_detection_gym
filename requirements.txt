@@ -1,4 +1,4 @@
-tensorflow==2.4.1
+tensorflow==2.7.2
 tf-slim==1.1.0
 pandas
 scipy
